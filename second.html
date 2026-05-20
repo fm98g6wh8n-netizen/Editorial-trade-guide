@@ -1,0 +1,1688 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TradeGuide v3 — Embedding Retrieval and RAGAS Evaluation on TRIPS and KR–US Trade Law</title>
+<style>
+/* ============================================================
+   TradeGuide v3 — Editorial stylesheet
+   No color accents, no rounded gimmicks, no decorative glyphs.
+   Type: ui-serif for body, ui-sans-serif for labels, ui-monospace
+         for data. System-installed fonts only, no network.
+   Palette: warm off-white paper, warm near-black ink, 2 greys.
+   ============================================================ */
+:root{
+  --paper:#FAFAF7;
+  --paper-2:#F2F1EA;
+  --ink:#1A1A1A;
+  --ink-2:#2C2C2C;
+  --rule:#CFCFC8;
+  --rule-2:#E2E1DA;
+  --mute:#6B6B66;
+  --mute-2:#8B8B86;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink)}
+body{
+  font-family: ui-serif, "Iowan Old Style", "Charter", "New York", "Apple Garamond", "Nanum Myeongjo", "Noto Serif KR", "Batang", Georgia, serif;
+  font-size:16px;
+  line-height:1.62;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+  font-variant-ligatures:common-ligatures;
+  font-feature-settings:"kern" 1, "liga" 1, "onum" 0;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.sans, button, input, textarea, select, .label, .meta, .ui, table, .nav, .badge, .ngram, .score, .kbd{
+  font-family: ui-sans-serif, -apple-system, "SF Pro Text", "Helvetica Neue", "Inter", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+.mono, code, .num, .id, .pill{
+  font-family: ui-monospace, "SF Mono", "Menlo", "JetBrains Mono", Consolas, monospace;
+  font-feature-settings:"tnum" 1, "zero" 1;
+}
+
+/* ===== Page frame ===== */
+.frame{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 56px 40px 120px;
+}
+@media (max-width: 720px){
+  .frame{ padding: 28px 18px 80px; }
+}
+
+/* ===== Masthead ===== */
+.mast{
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 0.5px solid var(--rule);
+  padding: 18px 0 26px;
+  margin-bottom: 40px;
+}
+.mast-row{
+  display:flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: ui-sans-serif, -apple-system, "Helvetica Neue", sans-serif;
+}
+.brand{
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.issueline{
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.title{
+  margin: 22px 0 14px;
+  font-size: clamp(28px, 4.2vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  font-weight: 600;
+  max-width: 22ch;
+}
+.title em{
+  font-style: italic;
+  font-weight: 600;
+}
+.lead{
+  margin: 0 0 18px;
+  font-size: 17px;
+  line-height: 1.65;
+  max-width: 62ch;
+  color: var(--ink-2);
+}
+.lead::first-letter{
+  font-size: 3.0em;
+  line-height: 0.92;
+  float: left;
+  margin: 0.08em 0.08em 0 0;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.mast-meta{
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px 36px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.mast-meta b{
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ===== Section heads (numbered) ===== */
+section{
+  margin-top: 64px;
+  scroll-margin-top: 30px;
+}
+.sec-head{
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 0.5px solid var(--rule);
+}
+.sec-head .num{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--mute);
+  font-weight: 600;
+  text-transform: uppercase;
+  min-width: 36px;
+}
+.sec-head h2{
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.sec-head .sub{
+  margin-left: auto;
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+/* ===== Two-column grid with side notes ===== */
+.cols{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 40px;
+}
+@media (max-width: 860px){
+  .cols{ grid-template-columns: 1fr; gap: 14px; }
+}
+.side{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--mute);
+  padding-top: 6px;
+}
+.side h4{
+  margin: 0 0 6px;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 700;
+}
+.side p{ margin: 0 0 12px; }
+.side .num{ color: var(--ink); font-weight: 600; }
+.side hr{ border:0; border-top: 0.5px solid var(--rule-2); margin: 14px 0; }
+
+/* ===== Body prose ===== */
+.prose p{ margin: 0 0 14px; max-width: 62ch; }
+.prose p.dense{ max-width: none; }
+.prose strong{ font-weight: 700; }
+.prose em{ font-style: italic; }
+.prose code{ font-size: 13.5px; background: var(--paper-2); padding: 1px 4px; }
+
+/* ===== UI controls ===== */
+textarea, input[type=text]{
+  width: 100%;
+  font-family: ui-serif, "Iowan Old Style", Georgia, "Nanum Myeongjo", serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: #fff;
+  border: 0.5px solid var(--ink);
+  padding: 14px 16px;
+  resize: vertical;
+}
+textarea:focus, input:focus{ outline: 1.5px solid var(--ink); outline-offset: -1.5px; }
+textarea{ min-height: 86px; }
+
+.controls{
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.btn{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border: 0.5px solid var(--ink);
+  background: #fff;
+  color: var(--ink);
+  padding: 9px 18px;
+  cursor: pointer;
+}
+.btn:hover{ background: var(--ink); color: var(--paper); }
+.btn-primary{ background: var(--ink); color: var(--paper); }
+.btn-primary:hover{ background: var(--paper); color: var(--ink); }
+.btn:disabled{ background: var(--paper-2); color: var(--mute); cursor: wait; border-color: var(--rule); }
+
+.segment{
+  display: inline-flex;
+  border: 0.5px solid var(--ink);
+}
+.segment label{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-right: 0.5px solid var(--ink);
+  background: #fff;
+  color: var(--ink);
+}
+.segment label:last-child{ border-right: 0; }
+.segment input{ position: absolute; opacity: 0; pointer-events: none; }
+.segment input:checked + span{ display: inline-block; }
+.segment label:has(input:checked){ background: var(--ink); color: var(--paper); }
+
+.chips{
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+.chip{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 12px;
+  color: var(--ink);
+  background: #fff;
+  border: 0.5px solid var(--rule);
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.chip:hover{ border-color: var(--ink); }
+.chips-label{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mute);
+  align-self: center;
+  margin-right: 4px;
+}
+
+/* ===== Retriever cards ===== */
+.cards{
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 0;
+  border-top: 0.5px solid var(--rule);
+  border-left: 0.5px solid var(--rule);
+}
+.card{
+  background: #fff;
+  border-right: 0.5px solid var(--rule);
+  border-bottom: 0.5px solid var(--rule);
+  padding: 22px 24px 26px;
+  position: relative;
+}
+.card .ver-row{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.card .ver-tag{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--mute);
+  font-weight: 600;
+}
+.card .ver-num{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.card .ver-desc{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 12px;
+  color: var(--mute);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.answer{
+  font-size: 14.5px;
+  line-height: 1.6;
+  padding: 12px 0 6px;
+  border-top: 0.5px solid var(--rule-2);
+  border-bottom: 0.5px solid var(--rule-2);
+  white-space: pre-wrap;
+}
+.answer-label{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin: 16px 0 4px;
+}
+.subqs{
+  margin: 4px 0 4px;
+}
+.subqs .subq{
+  display: flex;
+  gap: 10px;
+  font-size: 13.5px;
+  padding: 4px 0;
+  border-bottom: 0.5px dotted var(--rule-2);
+}
+.subqs .subq:last-child{ border-bottom: 0; }
+.subqs .lbl{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+  min-width: 30px;
+}
+.note{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 12px;
+  color: var(--mute);
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+.warns{ margin-top: 6px; }
+.warns .warn{
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 0.5px solid var(--rule-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.warns .warn:first-child{ border-top: 0.5px solid var(--ink); }
+.warns .warn .t{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 700;
+  padding-top: 2px;
+}
+.no-warn{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--mute);
+  border-top: 0.5px solid var(--rule-2);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+.faith{
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  padding: 8px 0 4px;
+  border-top: 0.5px solid var(--ink);
+  font-size: 13px;
+}
+.faith .t{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 700;
+  padding-top: 2px;
+}
+.faith .v{ display: flex; align-items: center; gap: 10px; }
+
+/* ----- Top retrieved list inside card ----- */
+.tops{ margin-top: 18px; border-top: 0.5px solid var(--ink); }
+.top-h{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mute);
+  padding: 10px 0 6px;
+}
+.top-row{
+  padding: 8px 0;
+  border-top: 0.5px dotted var(--rule-2);
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 8px;
+}
+.top-row .rk{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 11px;
+  color: var(--mute);
+  font-variant-numeric: tabular-nums;
+  padding-top: 2px;
+}
+.top-row .title-line{
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.top-row .meta-line{
+  margin-top: 3px;
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--mute);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+}
+.top-row .pill{
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  border: 0.5px solid var(--rule);
+  padding: 1px 5px;
+  font-variant-numeric: tabular-nums;
+}
+.bar{
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* ===== Architecture table (§2) ===== */
+.arch{
+  display: grid;
+  grid-template-columns: 130px repeat(3, 1fr);
+  border-top: 1.5px solid var(--ink);
+}
+.arch > div{
+  padding: 14px 16px;
+  border-bottom: 0.5px solid var(--rule);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.arch .lbl{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+  border-right: 0.5px solid var(--rule);
+}
+.arch .h{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom: 1px solid var(--ink);
+}
+.arch .h.lbl{ border-right: 0.5px solid var(--ink); color: var(--ink); }
+.arch .cell{ background: #fff; }
+@media (max-width: 720px){
+  .arch{ grid-template-columns: 1fr; }
+  .arch .lbl{ border-right: 0; border-bottom: 0.5px dotted var(--rule); }
+}
+
+/* ===== Inventory & golden tables ===== */
+.tbl{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.tbl thead th{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mute);
+  padding: 10px 8px 8px;
+  border-bottom: 1px solid var(--ink);
+  text-align: left;
+  font-weight: 700;
+}
+.tbl tbody td{
+  padding: 9px 8px;
+  border-bottom: 0.5px solid var(--rule-2);
+  vertical-align: top;
+  line-height: 1.4;
+}
+.tbl tbody tr:hover td{ background: #fff; }
+.tbl td.r, .tbl th.r{ text-align: right; font-variant-numeric: tabular-nums; }
+.tbl td.c, .tbl th.c{ text-align: center; }
+.tbl td.k{
+  font-family: ui-monospace, monospace;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.tbl td.mute{ color: var(--mute); }
+
+.inv-toggle{
+  margin-top: 10px;
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 0.5px solid var(--ink);
+  display: inline-block;
+  padding-bottom: 1px;
+}
+.inv-toggle::before{ content:"—"; margin-right: 6px; color: var(--mute); }
+.inv-toggle.open::before{ content:"+"; }
+
+.golden-row{ cursor: pointer; }
+.golden-row.active td{ background: var(--paper-2); }
+.golden-row td.q{ max-width: 480px; }
+.lvtag{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border: 0.5px solid var(--ink);
+  padding: 2px 6px;
+  display: inline-block;
+  min-width: 26px;
+  text-align: center;
+}
+.lvtag.L1{ background: #fff; color: var(--ink); }
+.lvtag.L2{ background: var(--paper-2); color: var(--ink); }
+.lvtag.L3{ background: var(--ink); color: var(--paper); }
+
+/* score cells in golden table */
+.scoreCell{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.scoreCell .frac{ font-family: ui-monospace, monospace; font-size: 12.5px; }
+.dots{ display: inline-flex; gap: 2px; }
+.dots span{
+  width: 8px; height: 8px;
+  border: 0.5px solid var(--ink);
+  display: inline-block;
+}
+.dots span.on{ background: var(--ink); }
+.dots span.idle{ border-color: var(--rule-2); }
+
+/* aggregate panel */
+.agg{
+  margin-top: 22px;
+  background: #fff;
+  border: 0.5px solid var(--ink);
+  padding: 22px 24px 24px;
+}
+.agg h3{
+  margin: 0 0 4px;
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+.agg .sub-en{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: 14px;
+  display: block;
+}
+.agg .barbar{
+  display: inline-block;
+  height: 6px;
+  background: var(--ink);
+  vertical-align: middle;
+  margin-left: 8px;
+}
+.agg .barbar.outline{ background: var(--paper); border: 0.5px solid var(--ink); }
+
+/* ===== Footnotes & colophon ===== */
+.foot{
+  margin-top: 80px;
+  border-top: 1.5px solid var(--ink);
+  padding-top: 24px;
+}
+.foot .row{
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 28px;
+  padding: 14px 0;
+  border-bottom: 0.5px solid var(--rule-2);
+}
+.foot .row:last-child{ border-bottom: 0; }
+.foot .row .lbl{
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mute);
+  font-weight: 700;
+}
+.foot .row .v{ font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+.colophon{
+  margin-top: 36px;
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--mute);
+  line-height: 1.7;
+  max-width: 70ch;
+}
+
+/* small utility */
+.spacer-l{ height: 18px; }
+.spacer-xl{ height: 36px; }
+.hr-rule{ border: 0; border-top: 0.5px solid var(--rule); margin: 28px 0; }
+.center{ text-align: center; }
+.muted{ color: var(--mute); }
+.kbd{
+  display: inline-block;
+  border: 0.5px solid var(--rule);
+  padding: 1px 5px;
+  font-size: 10.5px;
+  font-family: ui-monospace, monospace;
+  background: #fff;
+}
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <!-- ============================================================
+       Masthead
+       ============================================================ -->
+  <header class="mast">
+    <div class="mast-row">
+      <div class="brand">TradeGuide</div>
+      <div class="issueline">Version III · Issue 2026</div>
+    </div>
+    <h1 class="title">Embedding Retrieval, Hybrid Fusion, and Quantitative Evaluation of a TRIPS / KR–US Trade Law RAG System</h1>
+    <p class="lead">TradeGuide v3 는 세 세대의 검색기를 동일한 골든셋으로 정량 비교한다. TF-IDF 단일 질의의 v1, 질문 분해와 휴리스틱 검증을 더한 v2, 그리고 임베딩 기반 하이브리드 검색과 RAGAS 정량 평가를 결합한 v3. 본 문서는 그 비교 절차를 외부 호출 없이 단일 HTML 안에서 실행한다.</p>
+    <div class="mast-meta">
+      <span><b id="metaTotal">—</b> articles</span>
+      <span><b id="metaTrips">—</b> TRIPS · <b id="metaUs">—</b> KR–US</span>
+      <span><b id="metaGolden">—</b> golden questions</span>
+      <span>seed <b>42</b></span>
+      <span>BAAI · bge-m3 (backend)</span>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       §1 — Query
+       ============================================================ -->
+  <section id="s1">
+    <div class="sec-head">
+      <span class="num">§1</span>
+      <h2>Interactive Comparison</h2>
+      <span class="sub">v1 / v2 / v3 — same query, three retrievers</span>
+    </div>
+
+    <div class="cols">
+      <div class="main">
+        <textarea id="q" placeholder="예: TRIPS 제31조와 제31조의2 의 강제실시권 규율은 어떻게 다른가?"></textarea>
+        <div class="controls">
+          <button class="btn btn-primary" id="askBtn">검색 실행</button>
+          <div class="segment" role="radiogroup" aria-label="retriever mode">
+            <label><input type="radio" name="mode" value="all" checked /><span>전체 비교</span></label>
+            <label><input type="radio" name="mode" value="v1" /><span>v1</span></label>
+            <label><input type="radio" name="mode" value="v2" /><span>v2</span></label>
+            <label><input type="radio" name="mode" value="v3" /><span>v3</span></label>
+          </div>
+          <span class="muted sans" style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;">⌘ / Ctrl + Enter</span>
+        </div>
+
+        <div class="chips" id="chips">
+          <span class="chips-label">예시 질의</span>
+        </div>
+
+        <div class="cards" id="results"></div>
+      </div>
+
+      <aside class="side">
+        <h4>본 섹션이 보여주는 것</h4>
+        <p>동일한 질문이 세 검색기에 들어갔을 때 — (i) 무엇이 회수되는지, (ii) 어떤 점수 신호가 작동했는지, (iii) v2 의 휴리스틱이 어떤 오류를 잡는지, (iv) v3 의 하이브리드 융합이 어휘 표면이 다른 조항을 끌어올 수 있는지.</p>
+        <hr/>
+        <h4>v2 분해에 관하여</h4>
+        <p>본 정적 페이지에서 v2 의 질문 분해는 규칙 기반(조항 번호 다중 + 비교 패턴) 으로 작동한다. Python 파이프라인에서는 <span class="num">claude-haiku-4-5</span> 가 분해를 수행한다.</p>
+        <hr/>
+        <h4>v3 임베딩에 관하여</h4>
+        <p>BGE-M3 dense 벡터·BGE-reranker-v2-m3 cross-encoder 는 모델 가중치가 ~2GB 에 달해 브라우저에서 즉시 실행하지 않는다. 본 페이지의 v3 카드는 <span class="num">TF-IDF + BM25 + char n-gram Jaccard</span> 의 세 신호를 RRF(k=60) 로 융합해 임베딩의 의미 효과를 근사한다.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       §2 — Architecture
+       ============================================================ -->
+  <section id="s2">
+    <div class="sec-head">
+      <span class="num">§2</span>
+      <h2>Retriever Architecture</h2>
+      <span class="sub">TF-IDF → Agentic → Hybrid + RAGAS</span>
+    </div>
+
+    <div class="cols">
+      <div class="main">
+        <div class="prose">
+          <p>세 검색기는 같은 코퍼스 위에서 작동하되 신호 구성·검증 방식·평가 기준이 다르다. v1 은 어휘 일치만으로 충분한 단일 조항형 질문에 최적화돼 있고, v2 는 분해된 서브쿼리들을 통합한 뒤 휴리스틱으로 답변을 사후 검증한다. v3 는 어휘 표면 외의 의미 신호를 추가하고, 출력의 신뢰성을 *외부* 정량 지표로 입증한다.</p>
+        </div>
+
+        <div class="arch">
+          <div class="lbl h">Dimension</div>
+          <div class="cell h">v1 · TF-IDF baseline</div>
+          <div class="cell h">v2 · Agentic + heuristics</div>
+          <div class="cell h">v3 · Hybrid + RAGAS</div>
+
+          <div class="lbl">Retrieval signal</div>
+          <div class="cell">TF-IDF + cosine, 단일 질의</div>
+          <div class="cell">TF-IDF + cosine, 서브쿼리 통합 (max)</div>
+          <div class="cell">TF-IDF + BM25 + char n-gram Jaccard, RRF (k=60) 융합 · Python 파이프라인은 BGE-M3 dense + BM25 hybrid</div>
+
+          <div class="lbl">Decomposition</div>
+          <div class="cell">없음</div>
+          <div class="cell">조항 번호 다중 + 비교 패턴 감지 → 2~3 subqueries · 백엔드는 Claude API 분해</div>
+          <div class="cell">없음 (의미 검색이 결합 질의 처리)</div>
+
+          <div class="lbl">Reranking</div>
+          <div class="cell">없음</div>
+          <div class="cell">없음 (휴리스틱은 *답변* 단계)</div>
+          <div class="cell">BGE-reranker-v2-m3 cross-encoder (Python 백엔드) — 본 정적 페이지는 RRF 만</div>
+
+          <div class="lbl">Validation</div>
+          <div class="cell">없음</div>
+          <div class="cell">3-type heuristic — 개념 대체, 도메인 혼동, 기간 혼동</div>
+          <div class="cell">RAGAS 4 지표 — Faithfulness, Answer Relevancy, Context Precision, Context Recall (Claude 판정)</div>
+
+          <div class="lbl">Output</div>
+          <div class="cell">Top-3 회수, 단일 답변</div>
+          <div class="cell">Top-3 통합 회수, 휴리스틱 경고와 함께</div>
+          <div class="cell">Top-5 회수, 정량 점수 + Faithfulness 보고</div>
+
+          <div class="lbl">Strength</div>
+          <div class="cell">단일 조항형 정확도, 점수의 해석 가능성</div>
+          <div class="cell">개념·도메인·시점 오류 사후 검출</div>
+          <div class="cell">어휘 표면 차이를 넘는 도메인 교차 회수, 객관적 신뢰성 입증</div>
+        </div>
+      </div>
+
+      <aside class="side">
+        <h4>왜 세 가지를 비교하는가</h4>
+        <p>v1 만으로는 어휘 표면이 다르거나 의미가 분산된 질문을 풀 수 없고, v2 의 휴리스틱은 *알고 있는* 오류 유형만 잡는다. v3 의 임베딩·하이브리드·정량 평가가 두 한계를 해결하는지는 *동일한 30문항* 위에서만 정량적으로 답할 수 있다.</p>
+        <hr/>
+        <h4>점수의 의미</h4>
+        <p>본 페이지의 v3 점수는 RRF 융합값이다 — 어휘·BM25·n-gram 세 랭킹의 *역수 합*. 절대 의미는 없으나 같은 질의 내 비교에 사용된다.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       §3 — Corpus
+       ============================================================ -->
+  <section id="s3">
+    <div class="sec-head">
+      <span class="num">§3</span>
+      <h2>Corpus</h2>
+      <span class="sub">40 articles · TRIPS 80% · KR–US trade law 20%</span>
+    </div>
+
+    <div class="cols">
+      <div class="main">
+        <div class="prose">
+          <p>코퍼스는 TRIPS 협정 32개 조항과 미국 무역법 및 KORUS FTA 8개 조항으로 구성된다. v2 에서 분석되었던 4개 조항 — 제27조(진보성), 제31조(c)(반도체 강제실시), 제35~38조(IC 배치설계), 제39조(영업비밀) — 은 원본 verbatim 으로 보존되어 v2 분석의 anchor 역할을 한다. 나머지 36개 조항은 1차 출처 URL 을 보존한 paraphrase 이며, 각 항목의 <code>source</code> 필드에서 확인할 수 있다.</p>
+        </div>
+
+        <table class="tbl" style="margin-top:10px;">
+          <thead><tr>
+            <th>Domain</th><th class="r">Count</th><th>Primary articles</th>
+          </tr></thead>
+          <tbody id="domainTable"></tbody>
+        </table>
+
+        <span class="inv-toggle" id="invToggle">전체 40개 조항 목록</span>
+
+        <table class="tbl" id="invTable" style="margin-top:14px; display:none;">
+          <thead><tr>
+            <th>Article</th><th>Title</th><th>Domain</th><th>Source</th>
+          </tr></thead>
+          <tbody id="invBody"></tbody>
+        </table>
+      </div>
+
+      <aside class="side">
+        <h4>Provenance</h4>
+        <p><span class="num">v2_corpus_verbatim</span> 으로 표기된 4개 조항은 TradeGuide v2 의 <code>index.html</code> <span class="num">CORPUS</span> 배열에서 그대로 옮겨졌다.</p>
+        <p><span class="num">search_paraphrase</span> 36개는 WTO·미 의회·미 법무성·USTR 공식 자료를 WebSearch 로 조회하여 1차 출처 URL 을 보존한 채 요약·정리한 것이다.</p>
+        <hr/>
+        <h4>왜 80–120 개가 아닌가</h4>
+        <p>본 환경의 네트워크 정책상 WTO·Cornell·Wikipedia 직접 접근이 차단됐다(<span class="num">host_not_allowed</span>). 80–120 조항을 채우려면 사용자가 공식 PDF 를 추가해 동일한 <span class="num">build_corpus.py</span> 파이프라인으로 병합하면 된다.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       §4 — Golden Dataset & Recall
+       ============================================================ -->
+  <section id="s4">
+    <div class="sec-head">
+      <span class="num">§4</span>
+      <h2>Golden Dataset · Retrieval Recall</h2>
+      <span class="sub">30 questions · L1 / L2 / L3 · recall@5</span>
+    </div>
+
+    <div class="cols">
+      <div class="main">
+        <div class="prose">
+          <p>RAGAS 의 Context Precision·Recall 은 (질문, 정답, 검색된 컨텍스트, *정답 컨텍스트*) 의 4-tuple 을 입력으로 받는다. 따라서 골든셋의 각 항목은 단순한 (Q, A) 가 아니라 <code>relevant_article_ids</code> 까지 갖추어 검색 단계의 회수율을 정량 측정할 수 있다. 본 페이지에서는 그 중 가장 직관적인 지표인 <em>recall@5</em> 를 v1·v2·v3 에 대해 측정한다.</p>
+        </div>
+
+        <div class="controls" style="margin-top: 16px;">
+          <div class="segment">
+            <label><input type="radio" name="diff" value="all" checked /><span>전체</span></label>
+            <label><input type="radio" name="diff" value="L1" /><span>L1</span></label>
+            <label><input type="radio" name="diff" value="L2" /><span>L2</span></label>
+            <label><input type="radio" name="diff" value="L3" /><span>L3</span></label>
+          </div>
+          <button class="btn" id="goldRunAll">30문항 일괄 평가</button>
+          <button class="btn" id="goldClear">초기화</button>
+        </div>
+
+        <table class="tbl" id="goldTable" style="margin-top: 14px;">
+          <thead><tr>
+            <th style="width:50px;">#</th>
+            <th class="c" style="width:46px;">Lv</th>
+            <th>Question</th>
+            <th>GT articles</th>
+            <th class="r" style="width:96px;">v1 r@5</th>
+            <th class="r" style="width:96px;">v2 r@5</th>
+            <th class="r" style="width:96px;">v3 r@5</th>
+          </tr></thead>
+          <tbody id="goldBody"></tbody>
+        </table>
+
+        <div class="agg" id="goldAgg" style="display:none;">
+          <h3>평균 recall@5 — by difficulty</h3>
+          <span class="sub-en">Mean fraction of ground-truth article IDs found within top-5 retrieved</span>
+          <table class="tbl" id="aggTable"></table>
+        </div>
+      </div>
+
+      <aside class="side">
+        <h4>난이도 구성</h4>
+        <p><span class="num">L1</span> 단일 조항형 10문항 — 검색만 잘 되면 답이 나오는 사실 확인형.</p>
+        <p><span class="num">L2</span> 다중 조항 통합형 10문항 — 같은 도메인의 2~3개 조항을 결합. v2 의 분해 휴리스틱이 효과를 보이는 영역.</p>
+        <p><span class="num">L3</span> 도메인 교차형 10문항 — TRIPS ↔ 한미 통상법, 또는 서로 다른 IP 도메인의 결합. v3 의 의미 검색이 결정적 차이를 만드는 영역.</p>
+        <hr/>
+        <h4>recall@5 의 한계</h4>
+        <p>recall@5 는 검색 단계의 회수율만 본다. 답변의 사실성(Faithfulness) 과 컨텍스트의 정확성(Precision) 은 Python 의 <span class="num">ragas_runner.py</span> 가 Claude 판정으로 산출한다.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       §5 — Method
+       ============================================================ -->
+  <section id="s5">
+    <div class="sec-head">
+      <span class="num">§5</span>
+      <h2>Method Notes</h2>
+      <span class="sub">tokenization · TF-IDF · BM25 · RRF · heuristics</span>
+    </div>
+
+    <div class="cols">
+      <div class="main">
+        <div class="prose">
+          <p><strong>Tokenizer.</strong> 한국어 조사·어미 19종을 단순 제거한 뒤 영문은 lowercase 로 통일한다. 한 토큰의 길이 하한은 2자이며, 조사 제거 전후 두 버전을 모두 보존한다. 동의어 사전 19쌍이 한국어·영어·축약형을 묶어 표면 차이를 흡수한다.</p>
+          <p><strong>TF-IDF (v1).</strong> 코퍼스를 <code>tf · idf</code> 로 벡터화하고 질의·문서 사이의 cosine similarity 로 점수화한다. <code>idf(t) = log((N+1)/(df+1)) + 1</code>. 결과는 Top-3.</p>
+          <p><strong>BM25.</strong> 평균 문서 길이 보정과 saturating frequency 를 적용한 sparse 점수 — <code>k1=1.5</code>, <code>b=0.75</code>. v3 hybrid 의 sparse 신호.</p>
+          <p><strong>Char n-gram Jaccard.</strong> n=3 의 문자 n-gram 집합 간 Jaccard 유사도. 어휘 단위 토큰이 일치하지 않더라도 형태적 유사성을 포착해 *임베딩의 의미적 유사성* 을 부분적으로 근사한다.</p>
+          <p><strong>RRF.</strong> 세 랭킹의 역수 점수를 합산한다 — <code>score(d) = Σ 1 / (k + rank<sub>i</sub>(d))</code> with <code>k=60</code>. 점수 스케일이 다른 세 신호를 안정적으로 융합한다.</p>
+          <p><strong>v2 휴리스틱.</strong> 세 유형. (i) <em>개념 대체</em> — 진보성을 creativity/originality 로 치환하는 답, 영업비밀에 '유일성' 을 요건으로 넣는 답을 검출. (ii) <em>도메인 혼동</em> — 반도체 강제실시 질문에 도하 선언·의약품 공공보건 논리를 끌어오는 답을 검출. (iii) <em>기간 혼동</em> — 답변의 연수와 회수된 조항의 허용 연수가 어긋나는 경우를 검출.</p>
+          <p><strong>v3 충실성 근사.</strong> 본 페이지는 답변 토큰의 어떤 비율이 회수된 컨텍스트에 등장하는지를 lexical overlap 으로 계산한다 — RAGAS Faithfulness 의 *상한 근사*. 정식 Faithfulness 는 답변을 원자 명제로 분해하고 각 명제의 컨텍스트 함의를 LLM 판정으로 검증한다.</p>
+        </div>
+      </div>
+      <aside class="side">
+        <h4>왜 RRF 인가</h4>
+        <p>세 신호의 점수 스케일이 다르므로 가중합(weighted sum) 은 보정이 어렵다. RRF 는 *랭크* 만 사용하므로 스케일 무관, 하이퍼파라미터는 <span class="num">k</span> 하나뿐이다. <span class="num">k=60</span> 은 IR 문헌의 디폴트.</p>
+        <hr/>
+        <h4>왜 char n-gram 인가</h4>
+        <p>BGE-M3 같은 모델 없이 브라우저에서 의미 유사도를 *완전히* 재현할 수는 없다. 그러나 문자 단위 n-gram 은 토큰 분리가 다른 한·영 혼합 쿼리에서 형태 유사성을 잡아 어휘 일치 실패를 완화한다 — 임베딩의 완벽한 대체가 아닌 *부분 근사*.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       §6 — What runs here vs in the backend
+       ============================================================ -->
+  <section id="s6">
+    <div class="sec-head">
+      <span class="num">§6</span>
+      <h2>Scope of this Document</h2>
+      <span class="sub">browser vs python pipeline</span>
+    </div>
+
+    <div class="cols">
+      <div class="main">
+        <div class="prose">
+          <p>본 단일 HTML 은 외부 호출 없이 다음을 수행한다 — v1·v2·v3 의 회수 로직, v2 의 휴리스틱 검증 3종, recall@5 평가, 결과 카드와 집계표의 즉시 렌더링. 임베딩 모델, Cross-encoder, Claude API, RAGAS 의 4지표 산출은 <em>본 문서 안에서 수행하지 않는다</em> — 그것들은 Python 백엔드 파이프라인의 영역이다.</p>
+        </div>
+
+        <table class="tbl" style="margin-top:12px;">
+          <thead><tr>
+            <th>Component</th><th>Browser (this HTML)</th><th>Python pipeline</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>TF-IDF retrieve (v1)</td><td>실행</td><td>참조 구현 <span class="num">src/retrievers/v1_tfidf.py</span></td></tr>
+            <tr><td>Decomposition</td><td>규칙 기반 — 조항 다중 + 비교 패턴</td><td>Claude API <span class="num">claude-haiku-4-5</span></td></tr>
+            <tr><td>3-type heuristic (v2)</td><td>실행 — 개념 대체·도메인 혼동·기간 혼동</td><td>동일 로직 + 더 풍부한 정규식</td></tr>
+            <tr><td>Dense embedding</td><td>—</td><td><span class="num">BAAI/bge-m3</span> (한·영 SOTA)</td></tr>
+            <tr><td>Hybrid retrieval</td><td>TF-IDF + BM25 + char n-gram, RRF (k=60)</td><td>BGE-M3 dense + BM25 + Reciprocal Rank Fusion</td></tr>
+            <tr><td>Cross-encoder rerank</td><td>—</td><td><span class="num">BAAI/bge-reranker-v2-m3</span></td></tr>
+            <tr><td>Answer generation</td><td>발췌식 (Top-K 컨텍스트의 첫 두 문장)</td><td>Claude API <span class="num">claude-sonnet-4-6</span></td></tr>
+            <tr><td>Faithfulness</td><td>Lexical overlap 근사</td><td>RAGAS Faithfulness (LLM 판정)</td></tr>
+            <tr><td>Answer relevancy</td><td>—</td><td>RAGAS Answer Relevancy</td></tr>
+            <tr><td>Context precision</td><td>—</td><td>RAGAS Context Precision</td></tr>
+            <tr><td>Context recall</td><td>recall@5 (간이)</td><td>RAGAS Context Recall (LLM 판정)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="side">
+        <h4>재현성</h4>
+        <p>모든 난수 seed 는 <span class="num">42</span>. 임베딩 모델 ID 는 <span class="num">.env</span> 와 본 문서 양쪽에 박혀 있다.</p>
+        <hr/>
+        <h4>저장소</h4>
+        <p>전체 코드와 본 HTML 의 원본은 동일 저장소의 <span class="num">tradeguide-v3/</span> 디렉토리에 있다.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Colophon
+       ============================================================ -->
+  <footer class="foot">
+    <div class="row">
+      <div class="lbl">Project</div>
+      <div class="v">TradeGuide v3 — 한미 통상법·TRIPS RAG 시스템의 정량적 평가. 학생부종합전형 산출물 3차본.</div>
+    </div>
+    <div class="row">
+      <div class="lbl">Iteration</div>
+      <div class="v">v1 (Emergent, 2025 말) · v2 (TradeGuide v2, 2026 봄) · v3 (Embedding + RAGAS, 2026)</div>
+    </div>
+    <div class="row">
+      <div class="lbl">Models</div>
+      <div class="v">Retrieval — <span class="mono">BAAI/bge-m3</span> · <span class="mono">BAAI/bge-reranker-v2-m3</span>. Generation — <span class="mono">claude-sonnet-4-6</span>. Decomposition — <span class="mono">claude-haiku-4-5</span>. Evaluation — RAGAS 0.2.x.</div>
+    </div>
+    <div class="row">
+      <div class="lbl">Stack</div>
+      <div class="v">Python — <span class="mono">scikit-learn · FlagEmbedding · sentence-transformers · rank-bm25 · faiss-cpu · ragas · anthropic · kiwipiepy</span>. Browser — vanilla JS, no dependencies.</div>
+    </div>
+    <div class="row">
+      <div class="lbl">Type</div>
+      <div class="v">Set in system serif and sans (Iowan Old Style / New York / Charter / Nanum Myeongjo / Georgia for body; San Francisco / Inter / Apple SD Gothic Neo / Malgun Gothic for labels; SF Mono / Menlo for data). No external font request.</div>
+    </div>
+    <p class="colophon">All retrieval and evaluation logic executes locally. The 40-article corpus and 30-question golden set are embedded as constants in this file; the document makes no outbound request and persists no state. Source URLs for each corpus item are preserved in the <span class="mono">source</span> field of the inventory in §3. The companion Python pipeline lives at <span class="mono">tradeguide-v3/src/</span> in the same repository.</p>
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   Corpus — 40 articles (TRIPS 32 + KR-US 8)
+   ============================================================ */
+const CORPUS = [
+  {"id": "trips_art27_v2", "source": "TradeGuide v2 corpus (Trips-rag-v2 index.html)", "article_no": "Art 27", "title": "TRIPS 제27조 — 특허의 대상 (진보성·신규성·산업상이용가능성)", "text_en": "Patents shall be available for any inventions, whether products or processes, in all fields of technology, provided that they are new, involve an inventive step and are capable of industrial application. Footnote 5 clarifies that 'inventive step' may be deemed synonymous with 'non-obvious' and 'industrial applicability' with 'useful'.", "text_ko": "TRIPS 제27조 1항: 특허는 모든 기술 분야의 발명에 대해 부여될 수 있으며, 신규성(novelty), 진보성(inventive step), 산업상 이용가능성(industrial applicability)을 충족해야 한다. 협정 각주 5는 'inventive step'이 'non-obvious'와, 'industrial applicability'가 'useful'과 동일한 의미로 사용될 수 있음을 명시한다. 주의: 'creativity(창작성)'와 'originality(독창성)'는 저작권법 영역의 개념이며, TRIPS 특허 요건에서 사용되는 법적 용어가 아니다. 두 개념을 진보성과 동일시하는 것은 개념 대체 오류에 해당한다.", "domain": "patent", "tags": ["특허","진보성","신규성","산업상이용가능성","inventive step","non-obvious","novelty","각주5","footnote"], "provenance": "v2_corpus_verbatim"},
+  {"id": "trips_art31c_v2", "source": "TradeGuide v2 corpus (Trips-rag-v2 index.html)", "article_no": "Art 31(c)", "title": "TRIPS 제31조(c) — 반도체 기술 강제실시권의 제한", "text_en": "Where the law of a Member allows for other use of the subject matter of a patent without the authorization of the right holder, in the case of semi-conductor technology such use shall only be (i) for public non-commercial use, or (ii) to remedy a practice determined after judicial or administrative process to be anti-competitive.", "text_ko": "TRIPS 제31조(c): 반도체(semi-conductor) 기술에 대한 강제실시권(compulsory licensing)은 오직 (i) 공공의 비상업적 사용(public non-commercial use) 또는 (ii) 사법·행정 절차에 따라 반경쟁적(anti-competitive) 관행으로 판정된 행위의 시정 목적에 한해서만 허용된다. 도하 선언 및 제31조의2가 인정하는 의약품 공공보건(public health) 예외는 반도체 분야에는 적용되지 않는다. 따라서 일반 의약품 강제실시 논리를 반도체에 그대로 적용하는 것은 도메인 혼동 오류이다.", "domain": "patent", "tags": ["반도체","강제실시권","compulsory licensing","비상업적","반경쟁","anti-competitive","31조","31(c)"], "provenance": "v2_corpus_verbatim"},
+  {"id": "trips_art35_38_v2", "source": "TradeGuide v2 corpus (Trips-rag-v2 index.html)", "article_no": "Art 35-38", "title": "TRIPS 제35조~제38조 — 집적회로 배치설계 보호", "text_en": "Members shall provide protection to the layout-designs (topographies) of integrated circuits in accordance with the Washington Treaty (1989). Under Article 38, the term of protection shall not end before the expiration of a period of 10 years counted from the date of filing the application for registration or from the first commercial exploitation wherever in the world it occurs.", "text_ko": "TRIPS 제35조~제38조: 집적회로(integrated circuit)의 배치설계(layout-design, topography)는 1989년 워싱턴 조약을 기반으로 보호된다. 제38조 보호기간은 최초의 상업적 이용일(first commercial exploitation)로부터 최소 10년이며, 출원 등록제 국가는 출원일로부터 10년으로 설정할 수 있다. 이는 특허(20년, 제33조)와 명백히 다른 별개의 보호 체계이다. 보호기간 숫자를 혼동하면 기간 혼동 오류가 발생한다.", "domain": "ic_layout", "tags": ["배치설계","집적회로","layout-design","topography","10년","최초상업적이용일","38조","35조","36조","37조"], "provenance": "v2_corpus_verbatim"},
+  {"id": "trips_art39_v2", "source": "TradeGuide v2 corpus (Trips-rag-v2 index.html)", "article_no": "Art 39", "title": "TRIPS 제39조 — 미공개 정보(영업비밀) 보호", "text_en": "Natural and legal persons shall have the possibility of preventing information lawfully within their control from being disclosed to, acquired by, or used by others without their consent, so long as such information: (a) is secret; (b) has commercial value because it is secret; and (c) has been subject to reasonable steps to keep it secret.", "text_ko": "TRIPS 제39조 2항: 영업비밀(undisclosed information, trade secret)은 다음 3요건을 모두 갖춰야 보호된다. (가) 비밀성(secrecy): 일반적으로 알려져 있지 않거나 쉽게 접근할 수 없을 것. (나) 상업적 가치(commercial value): 비밀이라는 사실로 인해 상업적 가치를 가질 것. (다) 합리적 비밀 유지 조치(reasonable steps): 권리자가 비밀 유지를 위한 합리적 조치를 취하고 있을 것. 주의: '유일성(uniqueness)'은 TRIPS 제39조의 요건이 아니며, 이를 요건으로 보는 것은 개념 대체 오류이다.", "domain": "trade_secret", "tags": ["영업비밀","미공개정보","trade secret","undisclosed information","비밀성","상업적가치","합리적조치","39조","3요건"], "provenance": "v2_corpus_verbatim"},
+  {"id": "trips_art9", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04_e.htm", "article_no": "Art 9", "title": "TRIPS 제9조 — 베른협약 준수 및 아이디어-표현 이분법", "text_en": "Members shall comply with Articles 1 through 21 of the Berne Convention (1971) and the Appendix thereto. However, Members shall not have rights or obligations under TRIPS in respect of the rights conferred under Article 6bis of that Convention or of the rights derived therefrom. Copyright protection shall extend to expressions and not to ideas, procedures, methods of operation or mathematical concepts as such.", "text_ko": "TRIPS 제9조 1항은 회원국이 베른협약(1971년 파리 개정본) 제1조~제21조 및 부속서를 준수하도록 의무화한다. 다만 베른협약 제6조의2가 규정하는 인격권(moral rights) 은 TRIPS 의무 범위 밖이다. 제9조 2항은 저작권 보호가 '표현(expression)' 에 한정되며 '아이디어(idea)·절차· 운영방법·수학적 개념' 자체에는 미치지 않음을 명시한다 — 이른바 아이디어-표현 이분법.", "domain": "copyright", "tags": ["저작권","베른협약","Berne Convention","아이디어-표현 이분법","idea-expression dichotomy","인격권 제외"], "provenance": "search_paraphrase"},
+  {"id": "trips_art10", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04_e.htm", "article_no": "Art 10", "title": "TRIPS 제10조 — 컴퓨터 프로그램과 데이터베이스(편집물)", "text_en": "Computer programs, whether in source or object code, shall be protected as literary works under the Berne Convention (1971). Compilations of data or other material, whether in machine readable or other form, which by reason of the selection or arrangement of their contents constitute intellectual creations shall be protected as such. Such protection shall not extend to the data or material itself.", "text_ko": "TRIPS 제10조 1항: 컴퓨터 프로그램은 소스코드·오브젝트코드 형태와 관계없이 베른협약상 어문저작물(literary work) 로서 보호된다. 제10조 2항: 데이터 편집물(compilation) 이 선택·배열의 창작성을 갖는 경우 지적창작물로 별도 보호되나, 보호 범위는 편집물의 구조에 한정되며 개별 데이터 자체에는 미치지 않는다.", "domain": "copyright", "tags": ["컴퓨터 프로그램","computer program","source code","데이터베이스","compilation","어문저작물"], "provenance": "search_paraphrase"},
+  {"id": "trips_art11", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04_e.htm", "article_no": "Art 11", "title": "TRIPS 제11조 — 대여권(컴퓨터 프로그램·영상저작물)", "text_en": "In respect of at least computer programs and cinematographic works, a Member shall provide authors and their successors in title the right to authorize or to prohibit the commercial rental to the public of originals or copies of their copyright works.", "text_ko": "TRIPS 제11조: 최소한 컴퓨터 프로그램과 영상저작물(cinematographic work) 에 대해 저작자 및 권리승계인이 상업적 대여를 허락·금지할 권리를 부여해야 한다. 영상저작물은 대여로 인한 광범위한 복제가 복제권을 실질적으로 침해하지 않는 한 의무 적용 예외이며, 컴퓨터 프로그램은 프로그램이 대여의 본질적 목적이 아닌 경우(예: 차량 내 내비게이션) 예외이다.", "domain": "copyright", "tags": ["대여권","rental right","영상저작물","cinematographic","commercial rental"], "provenance": "search_paraphrase"},
+  {"id": "trips_art12", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04_e.htm", "article_no": "Art 12", "title": "TRIPS 제12조 — 저작권 보호기간", "text_en": "Whenever the term of protection of a work, other than a photographic work or a work of applied art, is calculated on a basis other than the life of a natural person, such term shall be no less than 50 years from the end of the calendar year of authorized publication, or, failing such authorized publication within 50 years from the making of the work, 50 years from the end of the calendar year of making.", "text_ko": "TRIPS 제12조: 사진저작물·응용미술저작물을 제외한 저작물의 보호기간을 자연인의 생존 기간이 아닌 기준으로 산정할 때(예: 법인 저작물·영상저작물·익명저작물), 최저 50년을 보장해야 한다. 기산점은 적법한 공표 연도 말, 또는 창작 후 50년 이내에 공표되지 않으면 창작 연도 말이다. 베른협약 일반 원칙은 '저작자 사후 50년' 이다.", "domain": "copyright", "tags": ["저작권 보호기간","50년","term of protection","공표연도","법인저작물"], "provenance": "search_paraphrase"},
+  {"id": "trips_art13", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04_e.htm", "article_no": "Art 13", "title": "TRIPS 제13조 — 저작권 제한·예외의 3단계 테스트", "text_en": "Members shall confine limitations or exceptions to exclusive rights to certain special cases which do not conflict with a normal exploitation of the work and do not unreasonably prejudice the legitimate interests of the right holder.", "text_ko": "TRIPS 제13조 — 3단계 테스트(three-step test): 저작권 제한·예외는 ① 특정한 특별한 경우 (certain special cases) 에 한정되어야 하며, ② 저작물의 통상적 이용과 충돌하지 않아야 하고, ③ 권리자의 정당한 이익을 불합리하게 해치지 않아야 한다. 세 조건은 누적적 (cumulative) 으로 모두 충족되어야 한다.", "domain": "copyright", "tags": ["3단계 테스트","three-step test","저작권 제한","예외","공정이용"], "provenance": "search_paraphrase"},
+  {"id": "trips_art15", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04b_e.htm", "article_no": "Art 15", "title": "TRIPS 제15조 — 상표 보호 대상 (식별력)", "text_en": "Any sign, or any combination of signs, capable of distinguishing the goods or services of one undertaking from those of other undertakings, shall be capable of constituting a trademark.", "text_ko": "TRIPS 제15조 1항: 한 사업자의 상품·서비스를 타인의 것과 식별할 수 있는 표지(sign) 또는 표지의 결합은 상표로 등록될 수 있어야 한다. 본래적 식별력이 없는 표지는 사용에 의한 식별력(acquired distinctiveness) 취득을 등록 요건으로 삼을 수 있다.", "domain": "trademark", "tags": ["상표","trademark","식별력","distinctiveness","사용에 의한 식별력"], "provenance": "search_paraphrase"},
+  {"id": "trips_art16", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04b_e.htm", "article_no": "Art 16", "title": "TRIPS 제16조 — 상표권의 효력 및 저명상표 보호", "text_en": "The owner of a registered trademark shall have the exclusive right to prevent all third parties not having the owner's consent from using in the course of trade identical or similar signs for goods or services which are identical or similar to those for which the trademark is registered, where such use would result in a likelihood of confusion. In case of the use of an identical sign for identical goods or services, a likelihood of confusion shall be presumed.", "text_ko": "TRIPS 제16조 1항: 등록상표권자는 동일·유사 상품에 대한 동일·유사 표지의 상업적 사용을 혼동가능성(likelihood of confusion) 이 있을 때 배제할 권리를 가진다. 동일 상품에 동일 표지를 사용하는 경우 혼동가능성이 추정된다. 제16조 2~3항은 파리협약 제6조의2 의 저명상표 보호를 서비스 및 비유사 상품·서비스까지 확장한다.", "domain": "trademark", "tags": ["상표권","혼동가능성","likelihood of confusion","저명상표","well-known mark","파리협약 6bis"], "provenance": "search_paraphrase"},
+  {"id": "trips_art22", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04b_e.htm", "article_no": "Art 22", "title": "TRIPS 제22조 — 지리적 표시 일반 보호", "text_en": "Geographical indications are, for the purposes of this Agreement, indications which identify a good as originating in the territory of a Member, or a region or locality in that territory, where a given quality, reputation or other characteristic of the good is essentially attributable to its geographical origin.", "text_ko": "TRIPS 제22조: 지리적 표시(GI) 란 상품이 특정 회원국 영토(또는 그 지역·지방) 에서 유래하며 그 상품의 품질·명성·특성이 본질적으로 지리적 원산지에 기인함을 식별하는 표시 이다. 회원국은 일반 공중을 오인케 하거나 부정경쟁(unfair competition) 을 구성하는 지리적 표시 사용을 막을 법적 수단을 이해관계자에게 제공해야 한다.", "domain": "gi", "tags": ["지리적 표시","GI","geographical indication","원산지","부정경쟁"], "provenance": "search_paraphrase"},
+  {"id": "trips_art23", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04b_e.htm", "article_no": "Art 23", "title": "TRIPS 제23조 — 와인·증류주 지리적 표시 강화 보호", "text_en": "Each Member shall provide the legal means for interested parties to prevent use of a geographical indication identifying wines or spirits for wines or spirits not originating in the place indicated by the geographical indication in question, even where the true origin of the goods is indicated or the geographical indication is used in translation or accompanied by expressions such as 'kind', 'type', 'style', 'imitation' or the like.", "text_ko": "TRIPS 제23조: 와인·증류주에 대한 지리적 표시 보호는 제22조보다 강화된다. 실제 원산지를 병기하거나 '풍', '식', '스타일', '모조' 같은 표현을 덧붙여도, 또는 번역해 사용해도, 원산지가 아닌 와인·증류주에 해당 GI 를 사용하는 행위는 금지된다(공중 오인 여부 불문).", "domain": "gi", "tags": ["와인","증류주","wine","spirits","강화 보호","kind type style imitation"], "provenance": "search_paraphrase"},
+  {"id": "trips_art24", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04b_e.htm", "article_no": "Art 24", "title": "TRIPS 제24조 — 지리적 표시 보호의 예외", "text_en": "Nothing in this Section shall require a Member to apply its provisions in respect of a geographical indication of any other Member with respect to goods or services for which the relevant indication is identical with the term customary in common language as the common name for such goods or services in the territory of that Member.", "text_ko": "TRIPS 제24조: GI 보호의 주요 예외. ① 보통명칭화(generic): 해당 회원국 영토에서 GI 가 이미 일반 명칭으로 굳어진 경우(예: '체다 치즈') 적용을 강제하지 않는다. ② 선행 상표권: GI 가 적용되기 전 선의(in good faith) 로 출원·등록·사용된 상표는 그 권리가 인정된다.", "domain": "gi", "tags": ["GI 예외","보통명칭","generic","선행 상표","good faith"], "provenance": "search_paraphrase"},
+  {"id": "trips_art25", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04b_e.htm", "article_no": "Art 25", "title": "TRIPS 제25조 — 산업디자인 보호 요건", "text_en": "Members shall provide for the protection of independently created industrial designs that are new or original. Members may provide that designs are not new or original if they do not significantly differ from known designs or combinations of known design features.", "text_ko": "TRIPS 제25조: 회원국은 독자적으로 창작된 신규성(new) 또는 독창성(original) 있는 산업 디자인을 보호해야 한다. 공지 디자인과 현저히 다르지 않으면 신규성·독창성을 부정할 수 있다. 직물(textile) 디자인 분야의 특수성(짧은 라이프사이클, 다수 디자인) 을 고려해 보호 취득 요건이 보호 기회를 부당하게 저해해서는 안 된다.", "domain": "design", "tags": ["산업디자인","industrial design","신규성","독창성","직물 디자인"], "provenance": "search_paraphrase"},
+  {"id": "trips_art26", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04b_e.htm", "article_no": "Art 26", "title": "TRIPS 제26조 — 산업디자인의 효력과 보호기간", "text_en": "The owner of a protected industrial design shall have the right to prevent third parties not having the owner's consent from making, selling or importing articles bearing or embodying a design which is a copy, or substantially a copy, of the protected design, when such acts are undertaken for commercial purposes. The duration of protection available shall amount to at least 10 years.", "text_ko": "TRIPS 제26조 1항: 보호 디자인 권리자는 상업적 목적의 모방·실질적 모방 디자인 물품의 제조·판매·수입을 금지할 권리를 가진다. 제26조 3항: 산업디자인 보호기간은 최소 10년.", "domain": "design", "tags": ["산업디자인 효력","10년","보호기간","모방"], "provenance": "search_paraphrase"},
+  {"id": "trips_art27_official", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04c_e.htm", "article_no": "Art 27", "title": "TRIPS 제27조 — 특허대상의 일반 원칙 및 배제 가능 분야", "text_en": "Patents shall be available for any inventions, whether products or processes, in all fields of technology, provided that they are new, involve an inventive step and are capable of industrial application. Members may exclude from patentability inventions, the prevention within their territory of the commercial exploitation of which is necessary to protect ordre public or morality. Members may also exclude diagnostic, therapeutic and surgical methods, and plants and animals other than micro-organisms.", "text_ko": "TRIPS 제27조 — 공식 본문 정리. 1항: 특허는 모든 기술 분야 발명에 신규성·진보성·산업상 이용가능성을 요건으로 부여되며 발명지·수입품 차별 금지. 2항: 공서양속·도덕·인간·동물·식물 생명·환경 보호 목적의 특허 배제 가능. 3항: 의료 방법, 미생물 외의 식물·동물 및 본질적 생물학적 공정 배제 가능 — 단 식물품종은 특허 또는 sui generis 보호 필수.", "domain": "patent", "tags": ["특허대상","patentable subject matter","공서양속","ordre public","morality","의료 방법","식물 품종","sui generis"], "provenance": "search_paraphrase"},
+  {"id": "trips_art28", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04c_e.htm", "article_no": "Art 28", "title": "TRIPS 제28조 — 특허권의 효력", "text_en": "A patent shall confer on its owner the following exclusive rights: where the subject matter is a product, to prevent third parties from making, using, offering for sale, selling, or importing for these purposes that product; where the subject matter is a process, to prevent third parties from using the process, and from using, offering for sale, selling, or importing at least the product obtained directly by that process.", "text_ko": "TRIPS 제28조 1항: 물건 발명 특허는 제3자가 권리자 동의 없이 그 물건을 제조·사용·판매청약·판매·수입(이러한 목적의)하는 행위를 금지할 권리를 부여한다. 방법 발명 특허는 방법의 사용 및 그 방법에 의해 직접 생산된 물건의 사용·판매청약·판매·수입을 금지할 권리를 부여한다. 2항: 특허권자는 양도·승계·라이선스 계약 체결 권리도 가진다.", "domain": "patent", "tags": ["특허 효력","rights conferred","제조 사용 판매 수입","방법 발명","process patent","양도","라이선스"], "provenance": "search_paraphrase"},
+  {"id": "trips_art29", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04c_e.htm", "article_no": "Art 29", "title": "TRIPS 제29조 — 특허 출원 명세서 공개 요건", "text_en": "Members shall require that an applicant for a patent shall disclose the invention in a manner sufficiently clear and complete for the invention to be carried out by a person skilled in the art and may require the applicant to indicate the best mode for carrying out the invention known to the inventor at the filing date.", "text_ko": "TRIPS 제29조 1항: 출원인은 해당 기술 분야 통상의 기술자(person skilled in the art) 가 실시할 수 있을 정도로 충분히 명확·완전하게(sufficiently clear and complete) 발명을 공개해야 한다 — 의무 요건(enablement). 같은 항 후단: 회원국은 출원일 기준 발명자가 알고 있는 최선의 실시 방식(best mode) 표시를 요구할 수 있다 — 임의 요건. 미국은 best mode 요구, 유럽특허협약·한국은 요구하지 않는다.", "domain": "patent", "tags": ["명세서 공개","disclosure","enablement","best mode","통상의 기술자"], "provenance": "search_paraphrase"},
+  {"id": "trips_art30", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04c_e.htm", "article_no": "Art 30", "title": "TRIPS 제30조 — 특허권의 제한적 예외", "text_en": "Members may provide limited exceptions to the exclusive rights conferred by a patent, provided that such exceptions do not unreasonably conflict with a normal exploitation of the patent and do not unreasonably prejudice the legitimate interests of the patent owner, taking account of the legitimate interests of third parties.", "text_ko": "TRIPS 제30조 — 특허 3단계 테스트: 회원국은 특허권에 *제한적(limited)* 예외를 둘 수 있으나, ① 특허의 통상적 이용과 불합리하게 충돌하지 않아야 하고, ② 권리자의 정당한 이익을 (제3자의 정당한 이익을 고려하여) 불합리하게 해치지 않아야 한다. 연구·실험 예외, Bolar(허가 신청 목적의 실시) 예외 등이 이 조항 하에 정당화된다.", "domain": "patent", "tags": ["특허 예외","limited exceptions","연구 예외","Bolar 예외","특허 3단계 테스트"], "provenance": "search_paraphrase"},
+  {"id": "trips_art31_general", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04c_e.htm", "article_no": "Art 31", "title": "TRIPS 제31조 — 강제실시권의 일반 조건", "text_en": "Where the law of a Member allows for other use of the subject matter of a patent without the authorization of the right holder (compulsory licensing), the authorization shall be considered on its individual merits; prior efforts must have been made to obtain authorization on reasonable commercial terms (waivable in cases of national emergency, extreme urgency, or public non-commercial use); the authorization shall be predominantly for the supply of the domestic market; and the right holder shall be paid adequate remuneration.", "text_ko": "TRIPS 제31조 — 강제실시권의 일반 조건. 회원국이 권리자 동의 없이 특허 발명을 사용하도록 허가하는 경우, 다음을 준수해야 한다. (a) 개별 사안 평가, (b) 사전 권리자와 합리적 조건의 자발적 라이선스 협상 시도 — 단 국가 비상사태·극도 긴급·공공 비상업적 사용 시 면제, (f) 주로 국내 시장 공급 목적 — 단 제31bis 의 예외 있음, (h) 권리자에게 경제적 가치를 고려한 적정 보상 지급.", "domain": "patent", "tags": ["강제실시권","compulsory licensing","31조","적정 보상","adequate remuneration","국가 비상사태"], "provenance": "search_paraphrase"},
+  {"id": "trips_art31bis", "source": "https://www.wto.org/english/docs_e/legal_e/31bis_trips_e.htm", "article_no": "Art 31bis", "title": "TRIPS 제31조의2 — 의약품 공공보건 paragraph-6 system", "text_en": "The obligations of an exporting Member under Article 31(f) shall not apply with respect to the grant by it of a compulsory licence to the extent necessary for the purposes of production of a pharmaceutical product and its export to an eligible importing Member in accordance with the terms set out in paragraph 2 of the Annex. (Amendment in force from 23 January 2017.)", "text_ko": "TRIPS 제31조의2 — '도하 선언 paragraph 6 system' 의 영구 입법화(2005 개정 의정서, 2017년 발효). 의약품 제조 능력이 부족·전무한 회원국이 의약품 강제실시권 활용에 어려움이 있던 문제를 해결한다. 수출국이 부속서 절차에 따라 강제실시 발동 시 제31조 (f) 의 '주로 국내 시장' 요건을 면제하여, 제3국(자격을 갖춘 수입국) 에 의약품을 수출 가능. 반도체 등 비의약품 분야에는 적용되지 않는다(도메인 한정).", "domain": "patent", "tags": ["31조의2","31bis","도하 선언","Doha","paragraph 6 system","의약품","공공보건","수출 면제"], "provenance": "search_paraphrase"},
+  {"id": "trips_art33", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_04c_e.htm", "article_no": "Art 33", "title": "TRIPS 제33조 — 특허 보호기간(20년)", "text_en": "The term of protection available shall not end before the expiration of a period of twenty years counted from the filing date.", "text_ko": "TRIPS 제33조: 특허 보호기간은 출원일(filing date) 로부터 20년이 만료되기 전에는 종료될 수 없다. 따라서 회원국 최소 의무는 20년이며, 그 이상 부여 가능. 산업디자인(10년, 제26조) 이나 집적회로 배치설계(10년, 제38조) 와 혼동하지 않도록 주의.", "domain": "patent", "tags": ["특허 보호기간","20년","filing date","출원일","33조"], "provenance": "search_paraphrase"},
+  {"id": "trips_art41", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_05_e.htm", "article_no": "Art 41", "title": "TRIPS 제41조 — 권리 집행의 일반 의무", "text_en": "Members shall ensure that enforcement procedures permit effective action against any act of infringement of intellectual property rights, including expeditious remedies to prevent infringements and remedies which constitute a deterrent to further infringements. These procedures shall avoid the creation of barriers to legitimate trade and provide for safeguards against their abuse.", "text_ko": "TRIPS 제41조 — 집행 일반 의무. 회원국은 IP 침해에 대한 효과적 대응(신속한 예방 구제 + 추가 침해 억지 구제) 이 가능하도록 집행 절차를 마련해야 한다. 단 절차는 합법적 무역을 방해하는 장벽을 만들지 않아야 하고 남용 방지 장치를 두어야 한다. 절차는 공정·공평·합리적 비용·합리적 시한이어야 한다.", "domain": "enforcement", "tags": ["권리 집행","enforcement","일반 의무","general obligations","남용 방지"], "provenance": "search_paraphrase"},
+  {"id": "trips_art42", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_05_e.htm", "article_no": "Art 42", "title": "TRIPS 제42조 — 공정하고 공평한 절차(민사 사법)", "text_en": "Members shall make available civil judicial procedures concerning the enforcement of any intellectual property right. Defendants shall have the right to written notice which is timely and contains sufficient detail. Parties shall be allowed to be represented by independent legal counsel. Decisions on the merits shall preferably be in writing and reasoned and shall be based only on evidence in respect of which parties were offered the opportunity to be heard.", "text_ko": "TRIPS 제42조: 회원국은 IP 권리자에게 민사 사법 집행 절차를 제공해야 한다. 피고에게 적시 서면 통지(청구 근거 포함), 독립 변호인 선임권, 의무적 출석 부담 최소화, 비밀 정보 보호 권한, 서면 이유 결정문, 양 당사자에게 청문 기회가 부여된 증거만으로의 판단을 보장한다.", "domain": "enforcement", "tags": ["민사 절차","civil procedure","공정 공평","fair and equitable","피고 권리"], "provenance": "search_paraphrase"},
+  {"id": "trips_art50", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_05_e.htm", "article_no": "Art 50", "title": "TRIPS 제50조 — 잠정조치(가처분·증거보전)", "text_en": "The judicial authorities shall have the authority to order prompt and effective provisional measures to prevent an infringement from occurring and to preserve relevant evidence. Where appropriate, in particular where any delay is likely to cause irreparable harm or where there is a demonstrable risk of evidence being destroyed, provisional measures may be adopted ex parte.", "text_ko": "TRIPS 제50조: 사법 당국은 ① 침해의 발생·계속(특히 통관 직후 유통망 진입) 방지, ② 관련 증거 보전 목적의 신속·효과적 잠정조치(가처분) 명령 권한을 가진다. 회복불능 손해 우려·증거 인멸 위험 등 경우 상대방 미통지(ex parte / inaudita altera parte) 가처분도 가능. 단 집행 후 즉시 피영향 당사자에게 통지·재심 기회 부여.", "domain": "enforcement", "tags": ["잠정조치","provisional measures","가처분","ex parte","증거보전","irreparable harm"], "provenance": "search_paraphrase"},
+  {"id": "trips_art51", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_05_e.htm", "article_no": "Art 51", "title": "TRIPS 제51조 — 세관 통관 정지 신청(국경 조치)", "text_en": "Members shall adopt procedures to enable a right holder, who has valid grounds for suspecting that the importation of counterfeit trademark or pirated copyright goods may take place, to lodge an application in writing with competent authorities for the suspension by the customs authorities of the release into free circulation of such goods.", "text_ko": "TRIPS 제51조: 회원국은 위조 상표(counterfeit trademark) 상품 또는 저작권 침해 복제물 (pirated copyright goods) 의 수입을 의심할 정당한 사유가 있는 권리자가, 행정·사법 당국에 서면 신청해 세관의 통관 정지(suspension of release) 를 요청할 수 있는 절차를 마련해야 한다 — 의무 적용 범위는 최소한 위조상표·저작권 침해 수입품.", "domain": "customs", "tags": ["국경 조치","border measures","세관","통관 정지","counterfeit","pirated"], "provenance": "search_paraphrase"},
+  {"id": "trips_art52", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_05_e.htm", "article_no": "Art 52", "title": "TRIPS 제52조 — 신청 요건(증거·물품 식별 정보)", "text_en": "Any right holder initiating procedures under Article 51 shall be required to provide adequate evidence to satisfy the competent authorities that there is prima facie an infringement and to supply a sufficiently detailed description of the goods to make them readily recognizable by the customs authorities.", "text_ko": "TRIPS 제52조: 통관 정지 신청자는 ① 수입국 법령상 권리 침해의 일응(prima facie) 증명, ② 세관이 물품을 즉시 식별할 수 있을 정도로 상세한 물품 설명 자료를 제공해야 한다.", "domain": "customs", "tags": ["신청 요건","prima facie","물품 식별","세관"], "provenance": "search_paraphrase"},
+  {"id": "trips_art53", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_05_e.htm", "article_no": "Art 53", "title": "TRIPS 제53조 — 담보 제공 및 남용 방지", "text_en": "The competent authorities shall have the authority to require an applicant to provide a security or equivalent assurance sufficient to protect the defendant and the competent authorities and to prevent abuse. Such security shall not unreasonably deter recourse to these procedures.", "text_ko": "TRIPS 제53조: 당국은 신청인에게 피고 및 당국 보호·남용 방지를 위한 충분한 담보(security) 또는 동등한 보증 제공을 요구할 수 있다. 다만 담보가 절차 이용을 부당하게 막을 정도여서는 안 된다.", "domain": "customs", "tags": ["담보","security","남용 방지","세관 절차"], "provenance": "search_paraphrase"},
+  {"id": "trips_art65", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_08_e.htm", "article_no": "Art 65", "title": "TRIPS 제65조 — 일반 경과기간", "text_en": "A developing country Member is entitled to delay for a further period of four years the date of application of the provisions of this Agreement, excluding Articles 3, 4 and 5. To the extent that a developing country Member is obliged to extend product patent protection to areas not so protectable, it may delay the application of such provisions for an additional five years.", "text_ko": "TRIPS 제65조 — 일반 경과기간. ① 모든 회원국: WTO 협정 발효 후 1년의 기본 유예. ② 개발도상국: 추가 4년 — 단 제3·4·5조 제외. ③ 종전 제품특허 미보호 기술 분야 도입 의무가 있는 개도국: 추가 5년 더. 인도의 제약 특허 도입 시한이 대표 사례.", "domain": "transitional", "tags": ["경과기간","transitional","개도국","developing country","1996","2000","2005"], "provenance": "search_paraphrase"},
+  {"id": "trips_art66", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_08_e.htm", "article_no": "Art 66", "title": "TRIPS 제66조 — 최빈개도국(LDC) 특례 및 기술이전", "text_en": "Least-developed country Members shall not be required to apply the provisions of this Agreement, other than Articles 3, 4 and 5, for a period of 10 years. Developed country Members shall provide incentives for technology transfer to least-developed country Members.", "text_ko": "TRIPS 제66조: 최빈개도국(LDC) 회원국은 제3·4·5조를 제외하고 10년의 유예를 부여받으며 TRIPS 이사회 결정으로 연장 가능. 제66조 2항은 선진국 회원국에 LDC 의 건실한 기술 기반 형성을 위한 기술이전(technology transfer) 촉진 인센티브 제공 의무를 부과 — 매년 보고 의무.", "domain": "transitional", "tags": ["최빈개도국","LDC","기술이전","technology transfer","66.2"], "provenance": "search_paraphrase"},
+  {"id": "trips_art67", "source": "https://www.wto.org/english/docs_e/legal_e/27-trips_08_e.htm", "article_no": "Art 67", "title": "TRIPS 제67조 — 기술 협력", "text_en": "Developed country Members shall provide, on request and on mutually agreed terms and conditions, technical and financial cooperation in favour of developing and least-developed country Members.", "text_ko": "TRIPS 제67조: 선진국 회원국은 개도국·LDC 의 요청 및 합의 조건에 따라 기술적·재정적 협력을 제공해야 한다. 협력 범위는 IP 보호·집행 법령 정비 지원, 국내 IP 행정 기구의 신설·강화 지원, 인력 훈련 등을 포함한다.", "domain": "transitional", "tags": ["기술 협력","technical cooperation","선진국 의무","67조"], "provenance": "search_paraphrase"},
+  {"id": "us_section_301", "source": "https://www.law.cornell.edu/uscode/text/19/2411", "article_no": "§301", "title": "미 무역법 제301조 — 외국의 불공정 무역관행에 대한 USTR 조치", "text_en": "Section 301 of the Trade Act of 1974 (19 U.S.C. §2411) authorizes USTR to investigate and act against foreign government acts, policies, or practices that violate a trade agreement, or are unjustified, unreasonable, or discriminatory and burden or restrict U.S. commerce. Remedies include tariff and non-tariff retaliation.", "text_ko": "1974년 미 무역법 제301조(19 U.S.C. §2411). USTR(미 무역대표부) 은 ① 무역협정상 미국의 권리 집행 또는 ② 외국 정부의 (a) 협정 위반, (b) 부당(unjustified)·불합리(unreasonable)·차별적(discriminatory) 행위·정책·관행으로 미국 상거래가 부담·제한받는 경우 조사·조치를 취할 권한을 가진다. 조치 수단에 관세·비관세 보복 모두 포함. 1980년대 한국 IP 정책에 대해서도 발동된 바 있으며, 최근 중국 IP·기술이전 문제로 활용됨(2018년 이후).", "domain": "trade_remedy", "tags": ["Section 301","301조","USTR","무역법","보복관세","unjustified","unreasonable","discriminatory"], "provenance": "search_paraphrase"},
+  {"id": "us_ieepa", "source": "https://www.law.cornell.edu/uscode/text/50/1701", "article_no": "50 U.S.C. §1701", "title": "IEEPA — 국제비상경제권한법", "text_en": "The International Emergency Economic Powers Act (IEEPA, 50 U.S.C. §§1701-1708) authorizes the President to regulate international commerce after declaring a national emergency in response to any unusual and extraordinary threat to the national security, foreign policy, or economy of the United States that has its source in whole or substantial part outside the United States.", "text_ko": "IEEPA(국제비상경제권한법, 50 U.S.C. §§1701-1708, 1977년 제정). 대통령은 미국 외부에서 전부 또는 상당 부분 기인하는 비상하고 이례적인 위협(unusual and extraordinary threat) 에 대응해 국가 비상사태를 선포한 후 국제 상거래를 규제할 수 있다. 권한은 거래 차단·자산 동결을 포함. 1977년 TWEA(적성국교역법) 의 평시 권한을 분리·축소한 입법.", "domain": "trade_remedy", "tags": ["IEEPA","국제비상경제권한법","national emergency","unusual extraordinary threat","자산 동결","blocking"], "provenance": "search_paraphrase"},
+  {"id": "us_section_232", "source": "https://www.congress.gov/crs-product/IF13006", "article_no": "§232", "title": "미 무역확장법 제232조 — 국가안보 사유 수입 제한", "text_en": "Section 232 of the Trade Expansion Act of 1962 (19 U.S.C. §1862) authorizes the President to adjust imports of an article (including through tariffs and quotas) if the Secretary of Commerce finds that the article is being imported in such quantities or under such circumstances as to threaten to impair the national security.", "text_ko": "미 무역확장법 제232조(19 U.S.C. §1862). 상무부 장관 조사 결과 특정 품목의 수입이 양 또는 상황상 국가안보를 침해할 우려가 있다고 판정되면, 대통령은 관세·쿼터 등으로 수입을 조정할 수 있다. 2018년 트럼프 1기 행정부의 철강 25%·알루미늄 10% 관세가 대표 발동 사례.", "domain": "trade_remedy", "tags": ["Section 232","232조","국가안보","national security","철강 관세","쿼터"], "provenance": "search_paraphrase"},
+  {"id": "us_section_337", "source": "https://www.law.cornell.edu/uscode/text/19/1337", "article_no": "§337", "title": "관세법 제337조 — ITC 의 IP 침해 수입품 조사·배제명령", "text_en": "Section 337 of the Tariff Act of 1930 (19 U.S.C. §1337) declares unlawful certain methods of competition in the importation of articles into the United States, including infringement of a U.S. patent, copyright, registered trademark, or semiconductor mask work. USITC may issue exclusion orders and cease and desist orders.", "text_ko": "미 관세법 제337조(19 U.S.C. §1337). 미국 특허·저작권·등록상표·반도체 마스크워크 침해 수입품을 포함한 불공정 수입 행위를 위법으로 규정. USITC(미 국제무역위원회) 가 조사하며, 위반 발견 시 배제명령(exclusion order) — 침해품의 미국 진입을 세관 단계에서 차단 — 또는 중지명령(cease and desist order) 을 발할 수 있다. 결정은 60일의 대통령 검토를 거쳐 효력 발생.", "domain": "trade_remedy", "tags": ["Section 337","337조","USITC","ITC","배제명령","exclusion order","cease and desist","특허 침해 수입"], "provenance": "search_paraphrase"},
+  {"id": "us_section_122", "source": "https://www.law.cornell.edu/uscode/text/19/2132", "article_no": "§122", "title": "미 무역법 제122조 — 국제수지 위기 시 일시적 수입 부과금", "text_en": "Section 122 of the Trade Act of 1974 (19 U.S.C. §2132) authorizes the President, whenever fundamental international payments problems require special import measures, to proclaim a temporary import surcharge not exceeding 15 percent ad valorem, for a period not exceeding 150 days, on articles imported into the United States.", "text_ko": "미 무역법 제122조(19 U.S.C. §2132). 국제수지(balance-of-payments) 위기 등 근본적 국제 지급 문제가 있을 때, 대통령은 ① 종가 기준 최대 15% 의 일시 수입 부과금(surcharge) 이나 ② 일시적 수량 제한을 150일 이내 부과 가능(연장은 의회 입법 필요). 광범위·일률 적용이 특징. 1971년 닉슨 'shock'(10% 부과금) 의 사후 입법화.", "domain": "trade_remedy", "tags": ["Section 122","122조","수입 부과금","surcharge","150일","국제수지","balance of payments"], "provenance": "search_paraphrase"},
+  {"id": "korus_fta_ch11_isds", "source": "https://ustr.gov/trade-agreements/free-trade-agreements/korus-fta", "article_no": "Ch 11", "title": "KORUS FTA 제11장 — 투자 보호 및 투자자-국가 분쟁해결(ISDS)", "text_en": "Chapter 11 of the U.S.-Korea Free Trade Agreement contains provisions to protect foreign investors and facilitate investment dispute settlement. An investor of one Party may submit to arbitration a claim for money damages for measures of the other Party that allegedly violate Chapter 11 obligations. Tribunals may award monetary damages (no punitive damages) but may not order withdrawal of the offending measure.", "text_ko": "한미 FTA 제11장 — 투자(Investment) 챕터. 외국인 투자자 보호 및 ISDS(투자자-국가 분쟁 해결) 메커니즘 규정. 일방 투자자는 상대국 정부의 조치가 챕터 11 위반이라고 주장할 경우 ICSID·ICSID 추가절차·UNCITRAL 규칙 중 선택해 중재 회부 가능. 중재 판정은 금전 배상에 한정되며(징벌적 손해배상 불가), 정부 조치 철회 명령 권한은 없다. 한국의 론스타 사건이 한국 ISDS 의 대표 사례.", "domain": "trade_remedy", "tags": ["KORUS FTA","한미 FTA","투자","ISDS","투자자-국가 분쟁","ICSID","UNCITRAL"], "provenance": "search_paraphrase"},
+  {"id": "korus_fta_ch18_ip", "source": "https://ustr.gov/trade-agreements/free-trade-agreements/korus-fta", "article_no": "Ch 18", "title": "KORUS FTA 제18장 — 지식재산권(TRIPS-plus 기준)", "text_en": "Chapter 18 of the KORUS FTA sets intellectual property obligations beyond the TRIPS baseline. Key provisions include patent term extension for regulatory delays; data exclusivity periods (minimum 5 years for new pharmaceutical chemical entities, plus 3 additional years for new clinical information on known entities); patent-regulatory linkage; copyright term extended to life of the author plus 70 years; and enforcement obligations exceeding those of TRIPS Part III.", "text_ko": "한미 FTA 제18장 — 지식재산권 챕터. TRIPS 최소 기준을 상회하는 TRIPS-plus 의무 부과. 주요 내용: ① 의약품·농약 허가 지연 보상을 위한 특허 존속기간 연장, ② 신물질 의약품 자료 독점(data exclusivity) 최소 5년 + 기지정 물질 신규 임상정보 추가 3년, ③ 특허-허가 연계(patent linkage) 시스템, ④ 저작권 보호기간을 저작자 사후 70년 으로 연장(제18.4조; TRIPS 베른 50년 초과), ⑤ TRIPS 제3부보다 강화된 집행 의무.", "domain": "patent", "tags": ["KORUS FTA","한미 FTA","제18장","TRIPS-plus","특허 존속기간 연장","자료 독점","data exclusivity","patent linkage","저작권 70년"], "provenance": "search_paraphrase"},
+  {"id": "korus_fta_ch22_dispute", "source": "https://ustr.gov/trade-agreements/free-trade-agreements/korus-fta", "article_no": "Ch 22", "title": "KORUS FTA 제22장 — 국가-국가 분쟁해결", "text_en": "Chapter 22, Section B of the KORUS FTA establishes State-State dispute settlement procedures: consultations, good offices/conciliation/mediation, and arbitral panels. A Party may suspend benefits if the responding Party fails to comply with a panel report.", "text_ko": "한미 FTA 제22장 B절 — 국가-국가 분쟁해결(State-State Dispute Settlement). 협정 해석·적용, 의무 위반 주장 등에 적용. 절차는 ① 협의(consultations) → ② 주선·조정·중개 → ③ 분쟁해결 패널(panel) 의 단계로 진행. 패널 보고서 불이행 시 일방은 보상이나 혜택 정지(suspension of benefits) 로 대응 가능. WTO 분쟁해결절차와는 별도 트랙.", "domain": "trade_remedy", "tags": ["KORUS FTA","한미 FTA","제22장","분쟁해결","consultations","suspension of benefits"], "provenance": "search_paraphrase"}
+];
+
+/* ============================================================
+   Golden dataset — 30 questions (L1/L2/L3 = 10/10/10)
+   ============================================================ */
+const GOLDEN = [
+  {"id":"L1_q01","question":"TRIPS 제33조가 정한 특허 보호기간은 어느 시점부터 몇 년인가?","ground_truth_answer":"특허 보호기간은 출원일(filing date)로부터 최소 20년이다.","relevant_article_ids":["trips_art33"],"difficulty":"L1","domain":"patent"},
+  {"id":"L1_q02","question":"TRIPS 제27조 1항이 정한 특허 부여의 3대 요건은 무엇인가?","ground_truth_answer":"신규성(novelty), 진보성(inventive step), 산업상 이용가능성(industrial applicability) 의 3대 요건을 충족해야 한다.","relevant_article_ids":["trips_art27_official","trips_art27_v2"],"difficulty":"L1","domain":"patent"},
+  {"id":"L1_q03","question":"TRIPS 제13조 '3단계 테스트' 의 세 조건은 무엇이며, 누적적인가 선택적인가?","ground_truth_answer":"① 특정한 특별한 경우에 한정, ② 통상적 이용과 충돌 없음, ③ 권리자의 정당한 이익을 불합리하게 해치지 않을 것 — 세 조건은 누적적(cumulative)으로 모두 충족되어야 한다.","relevant_article_ids":["trips_art13"],"difficulty":"L1","domain":"copyright"},
+  {"id":"L1_q04","question":"TRIPS 제39조가 영업비밀 보호를 위해 요구하는 3요건은 무엇인가?","ground_truth_answer":"비밀성(secrecy), 비밀이기에 갖는 상업적 가치(commercial value), 합리적 비밀 유지 조치(reasonable steps) 의 3요건을 모두 갖춰야 보호된다.","relevant_article_ids":["trips_art39_v2"],"difficulty":"L1","domain":"trade_secret"},
+  {"id":"L1_q05","question":"미 무역법 §301 은 어떤 외국 정부 행위를 USTR 조사 대상으로 하는가?","ground_truth_answer":"USTR 은 ① 무역협정상 미국의 권리 집행이 필요한 경우, 또는 ② 외국 정부의 협정 위반, 부당·불합리·차별적 행위로 미국 상거래가 부담받는 경우 조사·보복 조치를 취할 수 있다.","relevant_article_ids":["us_section_301"],"difficulty":"L1","domain":"trade_remedy"},
+  {"id":"L1_q06","question":"TRIPS 제16조에 따라 동일 상품에 동일 상표를 사용할 경우 어떤 법적 효과가 추정되는가?","ground_truth_answer":"혼동가능성(likelihood of confusion)이 추정된다.","relevant_article_ids":["trips_art16"],"difficulty":"L1","domain":"trademark"},
+  {"id":"L1_q07","question":"TRIPS 제26조가 정한 산업디자인의 최소 보호기간은?","ground_truth_answer":"최소 10년이다.","relevant_article_ids":["trips_art26"],"difficulty":"L1","domain":"design"},
+  {"id":"L1_q08","question":"IEEPA 발동의 요건은 무엇이며 위협의 발원지에 어떤 제약이 있는가?","ground_truth_answer":"대통령이 미국 외부에서 전부 또는 상당 부분 기인하는 '비상하고 이례적인 위협' 에 대응해 국가 비상사태를 선포해야 한다 — 위협의 발원지가 미국 외부여야 한다.","relevant_article_ids":["us_ieepa"],"difficulty":"L1","domain":"trade_remedy"},
+  {"id":"L1_q09","question":"TRIPS 제51조의 국경 조치 의무는 어떤 종류의 수입품에 최소한 적용되어야 하는가?","ground_truth_answer":"최소한 위조 상표 상품과 저작권 침해 복제물에 적용된다.","relevant_article_ids":["trips_art51"],"difficulty":"L1","domain":"customs"},
+  {"id":"L1_q10","question":"TRIPS 제29조가 정한 특허 출원 명세서의 공개 의무 기준은 무엇인가?","ground_truth_answer":"통상의 기술자가 실시할 수 있을 정도로 충분히 명확·완전하게 발명을 공개해야 한다 — enablement 요건.","relevant_article_ids":["trips_art29"],"difficulty":"L1","domain":"patent"},
+  {"id":"L2_q11","question":"TRIPS 제31조와 제31조의2의 강제실시권 규율은 어떻게 다른가? (수출 가능 여부 중심)","ground_truth_answer":"제31조(f)는 강제실시 허가가 주로 국내 시장 공급 목적이어야 한다고 규정하나, 제31조의2는 의약품에 한해 이 요건을 면제하여 제조 능력이 부족한 수입국으로의 수출을 허용한다.","relevant_article_ids":["trips_art31_general","trips_art31bis"],"difficulty":"L2","domain":"patent"},
+  {"id":"L2_q12","question":"TRIPS 제22조, 제23조, 제24조가 정한 지리적 표시 보호의 3단계 구조를 설명하라.","ground_truth_answer":"제22조는 일반적 보호, 제23조는 와인·증류주 강화 보호, 제24조는 보통명칭화·선행 상표 등 예외를 규정한다.","relevant_article_ids":["trips_art22","trips_art23","trips_art24"],"difficulty":"L2","domain":"gi"},
+  {"id":"L2_q13","question":"TRIPS 제9조와 제12조를 종합하면 회원국이 저작권 분야에서 부담하는 베른협약 의무와 추가 의무는 무엇인가?","ground_truth_answer":"제9조는 베른협약 1~21조 준수를 의무화하되 제6조의2(인격권)는 적용 밖이며, 제12조는 자연인 생존 기준이 아닐 때 저작물 보호기간을 최소 50년으로 강제한다.","relevant_article_ids":["trips_art9","trips_art12"],"difficulty":"L2","domain":"copyright"},
+  {"id":"L2_q14","question":"TRIPS 제41조와 제42조가 정한 IP 집행 일반 원칙과 민사 사법 절차의 핵심 요건은 무엇인가?","ground_truth_answer":"제41조는 효과적·신속한 침해 대응 + 남용 방지·합법적 무역 장벽 회피를 일반 원칙으로, 제42조는 적시 서면 통지·변호인 선임권·서면 이유 결정문·청문 기회가 부여된 증거 기반 판단을 요구한다.","relevant_article_ids":["trips_art41","trips_art42"],"difficulty":"L2","domain":"enforcement"},
+  {"id":"L2_q15","question":"TRIPS 제51~53조의 국경 조치 절차 흐름과 각 단계의 핵심 요건을 설명하라.","ground_truth_answer":"제51조 — 권리자의 통관 정지 서면 신청. 제52조 — 일응(prima facie) 증명 + 세관 식별용 상세 물품 설명. 제53조 — 피고·당국 보호와 남용 방지를 위한 담보 제공.","relevant_article_ids":["trips_art51","trips_art52","trips_art53"],"difficulty":"L2","domain":"customs"},
+  {"id":"L2_q16","question":"TRIPS 제25조와 제26조를 종합할 때 산업디자인의 보호 요건·효력·기간은 어떻게 되는가?","ground_truth_answer":"제25조는 신규성·독창성 있는 독자 창작 디자인 보호 + 직물 디자인 절차적 편의, 제26조는 상업 목적의 모방 금지 권리와 최소 10년 보호기간을 규정한다.","relevant_article_ids":["trips_art25","trips_art26"],"difficulty":"L2","domain":"design"},
+  {"id":"L2_q17","question":"TRIPS 제65조와 제66조가 정한 개도국·LDC 경과기간과 선진국 의무는 무엇인가?","ground_truth_answer":"제65조는 일반 1년 + 개도국 추가 4년(+제품특허 미보호 분야 5년)의 경과기간, 제66조는 LDC 에 10년 유예와 선진국의 기술이전 인센티브 제공 의무를 부과한다.","relevant_article_ids":["trips_art65","trips_art66"],"difficulty":"L2","domain":"transitional"},
+  {"id":"L2_q18","question":"TRIPS 제28조 특허권 효력과 제30조 제한적 예외의 관계를 설명하라.","ground_truth_answer":"제28조는 물건·방법 발명에 대한 제조·사용·판매·수입 등 배타권을 부여하고, 제30조는 통상적 이용·정당 이익을 해치지 않는 한도의 제한적 예외(Bolar 등)를 허용한다.","relevant_article_ids":["trips_art28","trips_art30"],"difficulty":"L2","domain":"patent"},
+  {"id":"L2_q19","question":"v2 가 분석한 TRIPS 제27조 진보성 해설과 공식 제27조 2항·3항의 배제 가능 분야를 통합 설명하라.","ground_truth_answer":"제27조 1항은 모든 기술 분야에 3요건 특허 부여를 보장, 2항은 공서양속·도덕·환경 사유 배제, 3항은 의료 방법·식물·동물 배제(식물품종은 sui generis 보호 필수).","relevant_article_ids":["trips_art27_v2","trips_art27_official"],"difficulty":"L2","domain":"patent"},
+  {"id":"L2_q20","question":"KORUS FTA 제11장 투자자-국가 분쟁(ISDS)과 제22장 국가-국가 분쟁해결의 절차·구제 차이는?","ground_truth_answer":"제11장 ISDS는 투자자가 ICSID·UNCITRAL 등 규칙으로 금전 배상 중재를 청구하며 조치 철회 명령은 불가, 제22장은 협의→주선·조정→패널의 국가-국가 절차로 보고서 불이행 시 혜택 정지로 대응한다.","relevant_article_ids":["korus_fta_ch11_isds","korus_fta_ch22_dispute"],"difficulty":"L2","domain":"trade_remedy"},
+  {"id":"L3_q21","question":"한국이 의약품 강제실시권을 발동하면 미 무역법 §301 에 저촉될 수 있는가? TRIPS 제31조의2 와의 관계는?","ground_truth_answer":"TRIPS 제31조의2 절차를 준수한 강제실시는 협정상 적법하지만, 미국은 'unjustified·unreasonable·discriminatory' 판단 시 §301 일방 조치를 발동할 수 있다 — 협정상 적법성과 미국의 일방적 무역구제 권한은 별개 트랙.","relevant_article_ids":["trips_art31bis","us_section_301"],"difficulty":"L3","domain":"patent+trade_remedy"},
+  {"id":"L3_q22","question":"TRIPS 제51조 국경 조치 의무와 미 관세법 §337 USITC 절차의 관계는?","ground_truth_answer":"TRIPS 제51조는 회원국의 위조상표·저작권 침해 수입품 통관 정지 절차의 최소 의무이고, §337은 특허·등록상표·반도체 마스크워크까지 USITC 배제명령으로 차단하는 미국의 TRIPS-plus 집행 메커니즘이다.","relevant_article_ids":["trips_art51","us_section_337"],"difficulty":"L3","domain":"customs+trade_remedy"},
+  {"id":"L3_q23","question":"저작권 보호기간이 TRIPS 와 KORUS FTA 에서 다른 이유는 무엇이며, 한국에 어떤 영향을 주었는가?","ground_truth_answer":"TRIPS 제12조 최소 50년, KORUS 제18.4조는 저작자 사후 70년의 TRIPS-plus 의무를 부과 — 한국은 이를 반영해 저작권법을 70년 기준으로 개정했다.","relevant_article_ids":["trips_art12","korus_fta_ch18_ip"],"difficulty":"L3","domain":"copyright+patent"},
+  {"id":"L3_q24","question":"한국이 반도체에서 강제실시권을 발동하면서 도하 선언 또는 제31조의2 를 근거로 들 수 있는가?","ground_truth_answer":"불가능. 제31조(c)는 반도체 강제실시를 공공 비상업적 사용 또는 반경쟁 시정에만 한정, 도하·제31조의2의 공공보건 예외는 의약품에 한정되므로 반도체에 적용은 도메인 혼동.","relevant_article_ids":["trips_art31c_v2","trips_art31bis"],"difficulty":"L3","domain":"patent"},
+  {"id":"L3_q25","question":"미국이 IEEPA 와 §232 를 동시에 발동해 반도체 수입을 제한할 때 TRIPS 차원의 위반 가능성은?","ground_truth_answer":"IEEPA·§232 자체는 국내법 권한, TRIPS 가 직접 금지하지는 않으나 제27조 차별 금지 의무 위반과 결합되면 패널 회부 대상이 될 수 있고, IEEPA 관세는 §122 한계에 비추어 사법 다툼 소지가 크다.","relevant_article_ids":["us_ieepa","us_section_232","trips_art27_official"],"difficulty":"L3","domain":"patent+trade_remedy"},
+  {"id":"L3_q26","question":"KORUS FTA 제18장의 의약품 자료 독점과 TRIPS 제39조의 영업비밀 보호는 어떻게 다른가?","ground_truth_answer":"제39조는 일반 영업비밀 3요건 보호, KORUS 제18.54조는 의약품 임상 데이터에 5년(+3년) 절대적 사용 금지를 부여하는 별개 트랙의 TRIPS-plus 제도다.","relevant_article_ids":["trips_art39_v2","korus_fta_ch18_ip"],"difficulty":"L3","domain":"trade_secret+patent"},
+  {"id":"L3_q27","question":"TRIPS 제35~38조 IC 배치설계 보호와 미 §337 USITC 절차는 어떻게 연결되는가?","ground_truth_answer":"제38조는 10년 보호, §337은 반도체 마스크워크 침해 수입품을 USITC 배제명령으로 통관 단계에서 차단해 TRIPS 보호의 실효 수단으로 작동한다.","relevant_article_ids":["trips_art35_38_v2","us_section_337"],"difficulty":"L3","domain":"ic_layout+trade_remedy"},
+  {"id":"L3_q28","question":"TRIPS 제41조 일반 집행 의무는 §337 USITC 절차에서 어떻게 구체화되는가?","ground_truth_answer":"제41조의 신속·효과·남용 방지 원칙은 §337에서 ALJ 16개월 기한, 배제명령·중지명령의 즉시 집행, 60일 대통령 검토로 구체화된다.","relevant_article_ids":["trips_art41","us_section_337"],"difficulty":"L3","domain":"enforcement+trade_remedy"},
+  {"id":"L3_q29","question":"특허의 진보성을 creativity 또는 originality 로 설명하는 것은 왜 잘못인가?","ground_truth_answer":"제27조 각주 5는 inventive step ↔ non-obvious 만 인정, creativity·originality 는 베른협약·저작권 영역(제9조) 개념 — 특허 요건의 저작권 개념 치환은 개념 대체 오류.","relevant_article_ids":["trips_art27_v2","trips_art27_official","trips_art9"],"difficulty":"L3","domain":"patent+copyright"},
+  {"id":"L3_q30","question":"미 무역법 §122 와 IEEPA 의 관세 부과 권한은 어떻게 구분되며, 최근 어떤 사법적 쟁점이 있는가?","ground_truth_answer":"§122는 국제수지 위기에 최대 15%×150일 일시 surcharge, IEEPA 는 외부 발원 비상사태에 광범위 권한 — 최근 관세 활용에 권한 범위 다툼이 사법적으로 진행 중이다.","relevant_article_ids":["us_section_122","us_ieepa"],"difficulty":"L3","domain":"trade_remedy"}
+];
+
+const EXAMPLES = [
+  "TRIPS 제27조의 진보성은 creativity 나 originality 와 같은 의미인가?",
+  "TRIPS 제31조(c)와 제35~38조의 보호기간 차이를 비교해줘",
+  "영업비밀의 보호 요건과 '유일성' 개념의 관계는?",
+  "한국이 강제실시권을 발동하면 미 무역법 301조에 저촉되는가?",
+  "저작권 보호기간은 50년인가 70년인가?",
+  "와인 지리적 표시에 'kind' 'style' 같은 표현을 붙이면 사용 가능한가?",
+  "USITC 배제명령과 TRIPS 국경조치는 어떻게 연결되는가?"
+];
+
+/* ============================================================
+   Tokenizer + synonyms
+   ============================================================ */
+const KO_PARTICLES = [
+  "은","는","이","가","을","를","의","에","에서","으로","로",
+  "와","과","도","만","이나","나","이라","라","이며","며",
+  "하다","하며","하고","한다","되며","된다","되는","되어",
+  "같은","같이","관련","대한","대해","위한","포함","있는","없는",
+  "그리고","그러나","또한","혹은","또는"
+];
+function tokenize(s){
+  if(!s) return [];
+  s = s.toLowerCase().replace(/[　-〿＀-￯!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~·…—–'']/g," ");
+  let raw = s.split(/\s+/).filter(Boolean);
+  let out = [];
+  for(let w of raw){
+    let stripped = w;
+    for(let p of KO_PARTICLES){
+      if(w.endsWith(p) && w.length > p.length + 1){ stripped = w.slice(0,-p.length); break; }
+    }
+    if(stripped.length>=2) out.push(stripped);
+    if(stripped!==w && w.length>=2) out.push(w);
+  }
+  return out;
+}
+const SYNONYMS = [
+  ["강제실시권","compulsory licensing","compulsory","licensing","강제실시"],
+  ["진보성","inventive step","inventive","non-obvious","nonobvious"],
+  ["반도체","semi-conductor","semiconductor","집적회로","ic"],
+  ["배치설계","layout-design","layout","topography","토포그래피"],
+  ["영업비밀","trade secret","undisclosed information","미공개정보"],
+  ["보호기간","protection term","duration","term","존속기간"],
+  ["공공보건","public health","도하선언","doha"],
+  ["반경쟁","anti-competitive","anticompetitive","반경쟁적"],
+  ["저작권","copyright","베른","berne"],
+  ["상표","trademark","mark","상표권"],
+  ["지리적 표시","gi","geographical indication","원산지"],
+  ["산업디자인","industrial design","design"],
+  ["301조","section 301","§301","ustr"],
+  ["337조","section 337","§337","usitc","itc","배제명령","exclusion order"],
+  ["232조","section 232","§232","national security","국가안보"],
+  ["ieepa","국제비상경제권한법","national emergency","비상경제"],
+  ["korus","한미 fta","한미fta","fta"],
+  ["국경 조치","border measure","세관","customs"],
+  ["잠정조치","provisional measure","가처분","injunction"]
+];
+function expandSynonyms(tokens){
+  const set = new Set(tokens);
+  for(let t of tokens){
+    const tl = t.toLowerCase();
+    for(let g of SYNONYMS){
+      if(g.some(x => x.toLowerCase()===tl || tl.includes(x.toLowerCase()))){
+        g.forEach(x => set.add(x.toLowerCase()));
+      }
+    }
+  }
+  return [...set];
+}
+
+const CORPUS_TOKENS = CORPUS.map(d => {
+  const t = tokenize((d.title + " " + d.text_ko + " " + d.text_en + " " + (d.tags||[]).join(" ")));
+  return { id: d.id, tokens: t, set: new Set(t) };
+});
+
+/* ============================================================
+   TF-IDF
+   ============================================================ */
+const N = CORPUS.length;
+const DF = (() => {
+  const df = new Map();
+  for(let {set} of CORPUS_TOKENS){ for(let t of set) df.set(t,(df.get(t)||0)+1); }
+  return df;
+})();
+function idf(t){ return Math.log((N+1)/((DF.get(t)||0)+1))+1; }
+function tfidfVec(tokens){
+  const c = new Map();
+  for(let t of tokens) c.set(t,(c.get(t)||0)+1);
+  const len = tokens.length || 1;
+  const v = new Map();
+  for(let [t,n] of c) v.set(t, (n/len)*idf(t));
+  return v;
+}
+function cos(a,b){
+  let dot=0, na=0, nb=0;
+  for(let [t,v] of a){ na+=v*v; const w=b.get(t); if(w) dot+=v*w; }
+  for(let [,v] of b) nb+=v*v;
+  if(!na || !nb) return 0;
+  return dot/(Math.sqrt(na)*Math.sqrt(nb));
+}
+const DOC_TFIDF = CORPUS_TOKENS.map(({id,tokens}) => ({id, vec: tfidfVec(tokens)}));
+function retrieveTfidf(q, k=3){
+  const qt = expandSynonyms(tokenize(q));
+  const qv = tfidfVec(qt);
+  return DOC_TFIDF.map(d => ({id:d.id, score: cos(qv,d.vec)}))
+    .sort((a,b) => b.score - a.score)
+    .slice(0,k);
+}
+
+/* ============================================================
+   BM25
+   ============================================================ */
+const BM25_K1 = 1.5, BM25_B = 0.75;
+const AVGDL = CORPUS_TOKENS.reduce((s,d) => s+d.tokens.length, 0) / N;
+function bm25Score(q, doc){
+  const tf = new Map();
+  for(let t of doc) tf.set(t,(tf.get(t)||0)+1);
+  const dl = doc.length;
+  let s = 0;
+  for(let t of q){
+    const f = tf.get(t); if(!f) continue;
+    const num = f*(BM25_K1+1);
+    const den = f + BM25_K1*(1-BM25_B + BM25_B*dl/AVGDL);
+    s += idf(t)*num/den;
+  }
+  return s;
+}
+function retrieveBM25(q, k=20){
+  const qt = expandSynonyms(tokenize(q));
+  return CORPUS_TOKENS.map(d => ({id:d.id, score: bm25Score(qt, d.tokens)}))
+    .sort((a,b) => b.score - a.score).slice(0,k);
+}
+
+/* ============================================================
+   Char n-gram Jaccard
+   ============================================================ */
+function ngrams(s, n=3){
+  s = s.toLowerCase().replace(/\s+/g," ").trim();
+  const o = new Set();
+  for(let i=0; i<=s.length-n; i++) o.add(s.slice(i,i+n));
+  return o;
+}
+const CORPUS_NG = CORPUS.map(d => ({id:d.id, gram: ngrams(d.title+" "+d.text_ko+" "+d.text_en)}));
+function jaccard(a,b){
+  let inter=0;
+  const sm = a.size<b.size ? a : b;
+  const bg = a.size<b.size ? b : a;
+  for(let x of sm) if(bg.has(x)) inter++;
+  const uni = a.size+b.size-inter;
+  return uni===0 ? 0 : inter/uni;
+}
+function retrieveNG(q, k=20){
+  const qg = ngrams(q);
+  return CORPUS_NG.map(d => ({id:d.id, score: jaccard(qg, d.gram)}))
+    .sort((a,b) => b.score - a.score).slice(0,k);
+}
+
+/* ============================================================
+   RRF fusion (v3)
+   ============================================================ */
+const RRF_K = 60;
+function rrfFuse(rankings, k=5){
+  const sc = new Map(), comp = new Map();
+  for(let [name, list] of Object.entries(rankings)){
+    list.forEach((it,i) => {
+      sc.set(it.id, (sc.get(it.id)||0) + 1/(RRF_K + i + 1));
+      const c = comp.get(it.id) || {};
+      c[name] = {rank: i+1, score: it.score};
+      comp.set(it.id, c);
+    });
+  }
+  return [...sc.entries()]
+    .map(([id,s]) => ({id, score:s, components: comp.get(id)}))
+    .sort((a,b) => b.score - a.score)
+    .slice(0,k);
+}
+function retrieveV3(q, k=5){
+  return rrfFuse({tfidf: retrieveTfidf(q,20), bm25: retrieveBM25(q,20), ngram: retrieveNG(q,20)}, k);
+}
+
+/* ============================================================
+   v2 decomposition (rule-based)
+   ============================================================ */
+function decompose(question){
+  const am = [...question.matchAll(/제?\s*(\d{1,3})(조|bis|조의2)(\s*\(([a-z])\))?/gi)];
+  const articles = am.map(m => `제${m[1]}${(m[2]==='bis'||m[2]==='조의2')?'조의2':'조'}${m[4]?'('+m[4]+')':''}`);
+  const um = [...question.matchAll(/§?\s*(301|232|337|122|1701|1862|1337|2132|2411)/g)];
+  const us = um.map(m => '§'+m[1]);
+  const anchors = [...new Set([...articles, ...us])];
+  const cmp = /(비교|차이|대비|vs|저촉|연결|관계)/i.test(question);
+  if(anchors.length>=2 && cmp){
+    const subs = anchors.slice(0,3).map(a => `${a} 관련 핵심 내용은?`);
+    subs.push(`${anchors.join(", ")} 간의 비교·차이는?`);
+    return {decomposed: true, reason: `조항 ${anchors.length}개 + 비교 패턴 감지`, subs, anchors};
+  }
+  return {decomposed: false, subs: [question], anchors};
+}
+
+/* ============================================================
+   v2 heuristics (3 types)
+   ============================================================ */
+function v2Heuristics(question, answer, topDocs){
+  const w = [];
+  const low = answer.toLowerCase();
+  // (1) Concept substitution
+  if(/진보성/.test(question) && (low.includes("creativity") || low.includes("originality") || /창작성|독창성/.test(answer))){
+    if(!low.includes("non-obvious") && !low.includes("inventive step")){
+      w.push({t:"개념 대체", m:"진보성을 creativity/originality(창작성·독창성)와 동일시한 의심. TRIPS 각주 5 는 inventive step ↔ non-obvious 만 인정한다."});
+    }
+  }
+  if(/유일성|uniqueness/i.test(answer) && /영업비밀|trade secret/i.test(question)){
+    w.push({t:"개념 대체", m:"영업비밀 요건에 '유일성(uniqueness)' 포함의 의심. TRIPS 제39조의 3요건은 비밀성·상업적 가치·합리적 관리이다."});
+  }
+  // (2) Domain confusion
+  if(/반도체|semi-conductor|semiconductor|31\(c\)|31\s*\(\s*c\s*\)/i.test(question)){
+    if(/도하|doha|paragraph\s*6|31bis|공공보건|public health|의약품/i.test(answer)){
+      w.push({t:"도메인 혼동", m:"반도체 강제실시(제31조(c)) 와 의약품 공공보건 예외(제31조의2/도하 선언) 는 별개 트랙."});
+    }
+  }
+  // (3) Period mismatch
+  const years = [...answer.matchAll(/(\d{1,3})\s*(년|years|year)/gi)].map(m => parseInt(m[1],10));
+  const allowed = new Set();
+  for(let d of topDocs){
+    const doc = CORPUS.find(c => c.id===d.id); if(!doc) continue;
+    if(doc.id.includes("art33") || doc.id==="trips_art27_v2") allowed.add(20);
+    if(doc.id.includes("art35_38") || doc.id.includes("art26")) allowed.add(10);
+    if(doc.id.includes("art12") || doc.id.includes("art66")) allowed.add(50);
+    if(doc.id.includes("art65") || doc.id==="trips_art66"){ allowed.add(4); allowed.add(5); allowed.add(10); }
+    if(doc.id==="korus_fta_ch18_ip"){ allowed.add(70); allowed.add(5); allowed.add(3); }
+    if(doc.id==="us_section_122") allowed.add(150);
+  }
+  const bad = years.filter(y => y>=3 && !allowed.has(y));
+  if(bad.length){
+    w.push({t:"기간 혼동", m:`답변의 '${[...new Set(bad)].join(", ")}년' 이 인용 조항(허용: ${[...allowed].sort((a,b)=>a-b).join(", ")||"없음"}년)에 부합하지 않음.`});
+  }
+  return w;
+}
+
+/* ============================================================
+   Answer synthesis (extractive)
+   ============================================================ */
+function summarize(docs){
+  if(!docs.length) return "관련 조항을 찾지 못했습니다.";
+  const lines = [];
+  for(let t of docs.slice(0,3)){
+    const d = CORPUS.find(c => c.id===t.id); if(!d) continue;
+    const ko = (d.text_ko||"").split(/(?<=[.!?。])\s+/).slice(0,2).join(" ");
+    lines.push(`【${d.article_no}】 ${ko}`);
+  }
+  return lines.join("\n\n");
+}
+
+function faith(answer, docs){
+  if(!docs.length) return {score:0, note:"근거 없음"};
+  const at = new Set(tokenize(answer));
+  const ctx = new Set();
+  for(let d of docs){
+    const doc = CORPUS.find(c => c.id===d.id); if(!doc) continue;
+    tokenize(doc.text_ko+" "+doc.text_en).forEach(x => ctx.add(x));
+  }
+  let inter = 0;
+  for(let t of at) if(ctx.has(t)) inter++;
+  const r = at.size ? inter/at.size : 0;
+  return {score: r, note: r>0.7?"충실성 양호":r>0.45?"부분 충실":"충실성 우려"};
+}
+
+/* ============================================================
+   Rendering
+   ============================================================ */
+function esc(s){
+  return String(s||"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function getDoc(id){ return CORPUS.find(c => c.id===id); }
+
+function renderTopRow(it, rk, pillsFn){
+  const d = getDoc(it.id); if(!d) return "";
+  const pills = pillsFn ? pillsFn(it) : `<span class="pill">cos ${it.score.toFixed(3)}</span>`;
+  return `
+    <div class="top-row">
+      <div class="rk">${rk}</div>
+      <div>
+        <div class="title-line">${esc(d.article_no)} · ${esc(d.title.replace(/^TRIPS\s/, ''))}</div>
+        <div class="meta-line">
+          ${pills}
+          <span>${esc(d.domain)}</span>
+          <span class="muted">${d.provenance==="v2_corpus_verbatim"?"v2 verbatim":"search paraphrase"}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderV1(q){
+  const top = retrieveTfidf(q, 3);
+  const ans = summarize(top);
+  return `
+    <div class="card">
+      <div class="ver-row"><div class="ver-tag">Version</div><div class="ver-num">v1</div></div>
+      <div class="ver-desc">TF-IDF · single query · top-3 · no validation</div>
+      <div class="answer-label">Synthesized answer</div>
+      <div class="answer">${esc(ans)}</div>
+      <div class="tops">
+        <div class="top-h">Top-3 retrieved · TF-IDF cosine</div>
+        ${top.map((t,i) => renderTopRow(t,i+1)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderV2(q){
+  const dec = decompose(q);
+  const merged = new Map();
+  for(let sq of dec.subs){
+    for(let r of retrieveTfidf(sq, 5)){
+      merged.set(r.id, Math.max(merged.get(r.id)||0, r.score));
+    }
+  }
+  const top = [...merged.entries()].map(([id,score]) => ({id,score})).sort((a,b)=>b.score-a.score).slice(0,3);
+  const ans = summarize(top);
+  const warns = v2Heuristics(q, ans, top);
+
+  const subqHtml = dec.decomposed
+    ? `<div class="answer-label">Decomposed subqueries · ${esc(dec.reason)}</div>
+       <div class="subqs">${dec.subs.map((s,i) => `<div class="subq"><span class="lbl">q${i+1}</span><span>${esc(s)}</span></div>`).join("")}</div>`
+    : `<div class="answer-label">Decomposition</div>
+       <div class="note">단일 질문 — 분해 미적용 (조항 다중 + 비교 패턴 부족)</div>`;
+
+  const warnHtml = warns.length
+    ? `<div class="answer-label">Heuristic flags · ${warns.length}</div>
+       <div class="warns">${warns.map(w => `<div class="warn"><div class="t">${esc(w.t)}</div><div>${esc(w.m)}</div></div>`).join("")}</div>`
+    : `<div class="no-warn">heuristic flags · 0 — no concept substitution / domain confusion / period mismatch detected</div>`;
+
+  return `
+    <div class="card">
+      <div class="ver-row"><div class="ver-tag">Version</div><div class="ver-num">v2</div></div>
+      <div class="ver-desc">Agentic decomposition + 3-type heuristic validation</div>
+      ${subqHtml}
+      <div class="answer-label">Synthesized answer</div>
+      <div class="answer">${esc(ans)}</div>
+      ${warnHtml}
+      <div class="tops">
+        <div class="top-h">Top-3 merged · TF-IDF cosine, max over subqueries</div>
+        ${top.map((t,i) => renderTopRow(t,i+1)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderV3(q){
+  const top = retrieveV3(q, 5);
+  const ans = summarize(top);
+  const f = faith(ans, top);
+  const maxRRF = top[0] ? top[0].score : 1;
+  return `
+    <div class="card">
+      <div class="ver-row"><div class="ver-tag">Version</div><div class="ver-num">v3</div></div>
+      <div class="ver-desc">Hybrid retrieval — TF-IDF + BM25 + char n-gram · RRF k=60 · top-5</div>
+      <div class="answer-label">Synthesized answer</div>
+      <div class="answer">${esc(ans)}</div>
+      <div class="faith">
+        <div class="t">Faithfulness</div>
+        <div class="v">
+          <span class="mono" style="font-size:13px;">${f.score.toFixed(3)}</span>
+          <span class="bar" style="display:inline-block;width:${Math.round(f.score*120)}px;height:5px;background:var(--ink);"></span>
+          <span class="muted sans" style="font-size:11px;letter-spacing:0.08em;">${esc(f.note)}</span>
+        </div>
+      </div>
+      <div class="note">Lexical overlap approximation only. Full RAGAS Faithfulness/Relevancy/Precision/Recall are produced by the Python pipeline (<span class="mono">src/evaluator/ragas_runner.py</span>).</div>
+      <div class="tops">
+        <div class="top-h">Top-5 reranked · RRF k=60</div>
+        ${top.map((t,i) => renderTopRow(t,i+1, it => {
+          const c = it.components||{};
+          const bar = `<span class="bar" style="display:inline-block;width:${Math.round((it.score/maxRRF)*60)}px;height:4px;background:var(--ink);vertical-align:middle;margin-left:4px;"></span>`;
+          const pieces = [`<span class="pill">rrf ${it.score.toFixed(4)}</span>${bar}`];
+          if(c.tfidf) pieces.push(`<span class="pill">tfidf #${c.tfidf.rank}</span>`);
+          if(c.bm25) pieces.push(`<span class="pill">bm25 #${c.bm25.rank}</span>`);
+          if(c.ngram) pieces.push(`<span class="pill">ngram #${c.ngram.rank}</span>`);
+          return pieces.join(" ");
+        })).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function runSearch(){
+  const q = document.getElementById("q").value.trim();
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  if(!q){
+    document.getElementById("results").innerHTML = "";
+    return;
+  }
+  const out = [];
+  if(mode==="all" || mode==="v1") out.push(renderV1(q));
+  if(mode==="all" || mode==="v2") out.push(renderV2(q));
+  if(mode==="all" || mode==="v3") out.push(renderV3(q));
+  document.getElementById("results").innerHTML = out.join("");
+}
+
+/* ============================================================
+   Meta + inventory
+   ============================================================ */
+function fillMeta(){
+  document.getElementById("metaTotal").textContent = CORPUS.length;
+  document.getElementById("metaTrips").textContent = CORPUS.filter(c => c.id.startsWith("trips_")).length;
+  document.getElementById("metaUs").textContent = CORPUS.filter(c => !c.id.startsWith("trips_")).length;
+  document.getElementById("metaGolden").textContent = GOLDEN.length;
+
+  // domain table
+  const groups = {};
+  for(let c of CORPUS){
+    (groups[c.domain] = groups[c.domain] || []).push(c);
+  }
+  const sorted = Object.entries(groups).sort((a,b) => b[1].length - a[1].length);
+  document.getElementById("domainTable").innerHTML = sorted.map(([dom, arr]) => `
+    <tr>
+      <td class="k">${esc(dom)}</td>
+      <td class="r mono">${arr.length}</td>
+      <td class="mute">${arr.slice(0,5).map(a => a.article_no).join(" · ")}${arr.length>5?` · 외 ${arr.length-5}`:""}</td>
+    </tr>
+  `).join("");
+
+  // inventory table (initially hidden)
+  document.getElementById("invBody").innerHTML = CORPUS.map(c => `
+    <tr>
+      <td class="k">${esc(c.article_no)}</td>
+      <td>${esc(c.title)}</td>
+      <td class="k">${esc(c.domain)}</td>
+      <td class="mute" style="font-size:11.5px;">${esc(c.source.length>72 ? c.source.slice(0,69)+"…" : c.source)}</td>
+    </tr>
+  `).join("");
+
+  // chips
+  const chipsEl = document.getElementById("chips");
+  EXAMPLES.forEach(e => {
+    const c = document.createElement("span");
+    c.className = "chip";
+    c.textContent = e;
+    c.addEventListener("click", () => {
+      document.getElementById("q").value = e;
+      runSearch();
+      document.getElementById("results").scrollIntoView({behavior:"smooth", block:"start"});
+    });
+    chipsEl.appendChild(c);
+  });
+}
+
+/* ============================================================
+   Golden eval
+   ============================================================ */
+const goldResults = new Map();
+
+function recallAt(ret, expected, k=5){
+  const top = ret.slice(0,k).map(r => r.id);
+  const ts = new Set(top);
+  const found = expected.filter(id => ts.has(id));
+  return {
+    recall: expected.length ? found.length/expected.length : 0,
+    found,
+    missing: expected.filter(id => !ts.has(id)),
+    n: expected.length
+  };
+}
+
+function evalQ(q){
+  const v1 = retrieveTfidf(q.question, 5);
+  const dec = decompose(q.question);
+  const m = new Map();
+  for(let sq of dec.subs){
+    for(let r of retrieveTfidf(sq,5)){
+      m.set(r.id, Math.max(m.get(r.id)||0, r.score));
+    }
+  }
+  const v2 = [...m.entries()].map(([id,score]) => ({id,score})).sort((a,b)=>b.score-a.score).slice(0,5);
+  const v3 = retrieveV3(q.question, 5);
+  return {
+    v1: recallAt(v1, q.relevant_article_ids, 5),
+    v2: recallAt(v2, q.relevant_article_ids, 5),
+    v3: recallAt(v3, q.relevant_article_ids, 5),
+  };
+}
+
+function dotCell(r){
+  if(!r) return `<div class="scoreCell"><span class="frac muted">—</span></div>`;
+  const total = r.n;
+  const dots = [];
+  for(let i=0; i<total; i++){
+    const on = i < r.found.length;
+    dots.push(`<span class="${on?"on":""}"></span>`);
+  }
+  return `<div class="scoreCell"><span class="frac">${r.found.length}/${total}</span><span class="dots">${dots.join("")}</span></div>`;
+}
+
+function renderGoldenTable(){
+  const sel = document.querySelector('input[name="diff"]:checked').value;
+  const items = GOLDEN.filter(q => sel==="all" || q.difficulty===sel);
+  document.getElementById("goldBody").innerHTML = items.map(q => {
+    const ev = goldResults.get(q.id);
+    return `
+      <tr class="golden-row" data-qid="${q.id}">
+        <td class="k">${q.id.split("_")[1]}</td>
+        <td class="c"><span class="lvtag ${q.difficulty}">${q.difficulty}</span></td>
+        <td class="q">${esc(q.question)}</td>
+        <td class="k">${q.relevant_article_ids.map(esc).join(", ")}</td>
+        <td class="r">${dotCell(ev?.v1)}</td>
+        <td class="r">${dotCell(ev?.v2)}</td>
+        <td class="r">${dotCell(ev?.v3)}</td>
+      </tr>
+    `;
+  }).join("");
+
+  document.querySelectorAll(".golden-row").forEach(row => {
+    row.addEventListener("click", () => {
+      const qid = row.dataset.qid;
+      const q = GOLDEN.find(g => g.id===qid);
+      document.getElementById("q").value = q.question;
+      goldResults.set(q.id, evalQ(q));
+      renderGoldenTable();
+      renderAgg();
+      runSearch();
+      document.querySelectorAll(".golden-row.active").forEach(r => r.classList.remove("active"));
+      row.classList.add("active");
+      document.getElementById("results").scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  });
+}
+
+function renderAgg(){
+  if(goldResults.size===0){ document.getElementById("goldAgg").style.display = "none"; return; }
+  document.getElementById("goldAgg").style.display = "block";
+  const buckets = { L1:[], L2:[], L3:[], all:[] };
+  for(let [qid,ev] of goldResults){
+    const q = GOLDEN.find(g => g.id===qid); if(!q) continue;
+    buckets[q.difficulty].push(ev);
+    buckets.all.push(ev);
+  }
+  const avg = (arr, ver) => arr.length===0 ? null : arr.reduce((s,e) => s+e[ver].recall, 0)/arr.length;
+  const fmt = x => x===null ? "—" : x.toFixed(3);
+  const bar = x => x===null ? "" : `<span class="barbar" style="width:${Math.max(2, x*90)}px;"></span>`;
+  const rows = ["all","L1","L2","L3"].map(lv => {
+    const arr = buckets[lv];
+    const v1 = avg(arr,"v1"), v2 = avg(arr,"v2"), v3 = avg(arr,"v3");
+    return `<tr>
+      <td>${lv==="all"?"전체":lv}</td>
+      <td class="r">${arr.length}</td>
+      <td class="r">${fmt(v1)} ${bar(v1)}</td>
+      <td class="r">${fmt(v2)} ${bar(v2)}</td>
+      <td class="r">${fmt(v3)} ${bar(v3)}</td>
+    </tr>`;
+  });
+  document.getElementById("aggTable").innerHTML = `
+    <thead><tr>
+      <th>Difficulty</th><th class="r">n</th>
+      <th class="r">v1 avg r@5</th><th class="r">v2 avg r@5</th><th class="r">v3 avg r@5</th>
+    </tr></thead>
+    <tbody>${rows.join("")}</tbody>
+  `;
+}
+
+/* ============================================================
+   Event wiring
+   ============================================================ */
+document.getElementById("askBtn").addEventListener("click", runSearch);
+document.getElementById("q").addEventListener("keydown", e => {
+  if(e.key==="Enter" && (e.metaKey||e.ctrlKey)) runSearch();
+});
+
+document.getElementById("invToggle").addEventListener("click", e => {
+  const tbl = document.getElementById("invTable");
+  const t = e.currentTarget;
+  if(tbl.style.display==="none"){
+    tbl.style.display = "table"; t.classList.add("open"); t.firstChild && (t.textContent = "전체 40개 조항 목록 닫기");
+  } else {
+    tbl.style.display = "none"; t.classList.remove("open"); t.textContent = "전체 40개 조항 목록";
+  }
+});
+
+document.getElementById("goldRunAll").addEventListener("click", () => {
+  const btn = document.getElementById("goldRunAll");
+  btn.disabled = true; btn.textContent = "평가 중…";
+  setTimeout(() => {
+    for(let q of GOLDEN) goldResults.set(q.id, evalQ(q));
+    renderGoldenTable();
+    renderAgg();
+    btn.disabled = false; btn.textContent = "30문항 일괄 평가";
+    document.getElementById("goldAgg").scrollIntoView({behavior:"smooth", block:"start"});
+  }, 30);
+});
+document.getElementById("goldClear").addEventListener("click", () => {
+  goldResults.clear();
+  renderGoldenTable();
+  renderAgg();
+});
+document.querySelectorAll('input[name="diff"]').forEach(r => r.addEventListener("change", renderGoldenTable));
+
+fillMeta();
+renderGoldenTable();
+</script>
+</body>
+</html>
